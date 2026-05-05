@@ -1,0 +1,21 @@
+[Unit]
+Description=Navidrome Music Server
+After=network-online.target mnt-nas-music.automount
+
+[Container]
+ContainerName=navidrome
+Image=docker.io/deluan/navidrome:latest
+Volume=%h/srv/navidrome/data:/data:Z
+Volume=/mnt/nas/music:/music:ro
+SecurityLabelDisable=true
+Environment=TZ=America/New_York
+Environment=ND_LOGLEVEL=info
+Environment=ND_PORT=4533
+Network=host
+
+[Service]
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

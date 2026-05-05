@@ -1,0 +1,17 @@
+[Unit]
+Description=Landing page
+After=network-online.target
+
+[Container]
+ContainerName=landing
+Image=docker.io/library/nginx:alpine
+Volume=%h/srv/landing:/usr/share/nginx/html:ro,Z
+PublishPort=8080:80
+Environment=TZ=America/New_York
+
+[Service]
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

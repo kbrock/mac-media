@@ -1,0 +1,17 @@
+[Unit]
+Description=Home Assistant
+After=network-online.target
+
+[Container]
+ContainerName=homeassistant
+Image=ghcr.io/home-assistant/home-assistant:stable
+Volume=%h/srv/homeassistant/config:/config:Z
+Environment=TZ=America/New_York
+Network=host
+
+[Service]
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

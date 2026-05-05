@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Groceries</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Avenir Next', Avenir, sans-serif;
+    color: #5B7C99;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #5B7C99;
+    border: 2px solid #5B7C99;
+    border-radius: 8px;
+    padding: 4px 0;
+    margin: 8px 6px 6px;
+    text-align: center;
+  }
+
+  .columns {
+    display: flex;
+    gap: 0;
+    padding: 0 4px;
+  }
+
+  section {
+    flex: 1;
+    border: 1px solid #5B7C99;
+    border-radius: 6px;
+    margin: 0 2px;
+    padding: 4px 6px;
+    min-width: 0;
+  }
+
+  section:nth-child(even) {
+    background: #F0F4F7;
+  }
+
+  h2, li {
+    line-height: 18px;
+    height: 18px;
+  }
+
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    padding: 0 0 0 18px;
+    position: relative;
+    font-size: 15px;
+  }
+
+  li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 3px;
+    width: 10px;
+    height: 10px;
+    border: 1px solid #5B7C99;
+    border-radius: 2px;
+  }
+
+  li:empty {
+    border-bottom: 1px solid #ccc;
+    margin-left: 18px;
+    padding: 0 0 0 0;
+  }
+
+  li:empty::before {
+    left: -18px;
+  }
+
+  /* Overflow indicator — screen only */
+  section.overflow {
+    background: #FDE8E8;
+    color: #A94442;
+  }
+
+  .page {
+    display: flex;
+    gap: 0;
+  }
+
+  .half {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .half + .half {
+    border-left: 1px dashed #ccc;
+    margin-left: 4px;
+    padding-left: 4px;
+  }
+
+  @page {
+    size: 11in 8.5in landscape;
+    margin: 0.1in 0.125in;
+  }
+
+  @media print {
+    section.overflow {
+      background: inherit;
+      color: inherit;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+<div class="half">
+<h1>Groceries</h1>
+<div class="columns">
+  <section>
+    <!-- Meat/Fish (aisles 1) -->
+    <h2>Meat</h2>
+    <ul>
+      <li>Bacon</li>
+      <li>Beef</li>
+      <li>Chicken</li>
+      <li>Fish</li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+    <!-- Produce (aisles 1) -->
+    <h2>Produce</h2>
+    <ul>
+      <li>Apples</li>
+      <li>Avocados</li>
+      <li>Bananas</li>
+      <li>Bok choy</li>
+      <li>Broccoli</li>
+      <li>Cantaloupe</li>
+      <li>Carrots</li>
+      <li>Celery</li>
+      <li>Cucumber</li>
+      <li>Kiwi</li>
+      <li>Lettuce</li>
+      <li>Limes</li>
+      <li>Mushrooms</li>
+      <li>Onions</li>
+      <li>Oranges</li>
+      <li>Peppers</li>
+      <li>Pickles</li>
+      <li>Pico d Gallo</li>
+      <li>Potatoes</li>
+      <li>Scallions</li>
+      <li>Spinach</li>
+      <li>Squash</li>
+      <li>Strawberries</li>
+      <li>Tomatoe</li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </section>
+
+  <section>
+    <!-- Dairy (back wall 2-6) -->
+    <h2>Dairy</h2>
+    <ul>
+      <li>Butter</li>
+      <li>Cheese Val</li>
+      <li>Cheese Moz</li>
+      <li>Eggs</li>
+      <li>Yogurt Cow</li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+    <!-- Nuts (aisle 2,3) -->
+    <h2>Nuts / Soap</h2>
+    <ul>
+      <li>Collagen</li>
+      <li>Electrolytes</li>
+      <li>Macadamia</li>
+      <li>Matcha</li>
+      <li>Seed Trio</li>
+      <li>Dr. Bronners</li>
+      <li>Hair Sh/Cnd</li>
+      <li>Conditioner</li>
+      <li>Lotion</li>
+      <li></li>
+      <li></li>
+    </ul>
+    <!-- Asian (aisle 4) -->
+    <h2>Asian / Cans</h2>
+    <ul>
+      <li>Beans</li>
+      <li>Seaweed</li>
+      <li>Soy Sauce</li>
+      <li>Teriyaki</li>
+      <li></li>
+    </ul>
+    <!-- Sauce (aisle 5) -->
+    <h2>Sauces</h2>
+    <ul>
+      <li>Sun Butter</li>
+      <li>NutZoo</li>
+      <li>BBQ</li>
+      <li>Ketchup</li>
+      <li>Avocado oil</li>
+      <li>Beef Tallow</li>
+      <li>Bread Crmb</li>
+      <li>Broth</li>
+      <li>Ghee</li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </section>
+
+  <section>
+    <!-- Crackers (aisle 6?) -->
+    <h2>Crackers</h2>
+    <ul>
+      <li>HU Mint</li>
+      <li>HU Hazelnut</li>
+      <li>Mary</li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+    <!-- Chips (aisle 6?) -->
+    <h2>Chips</h2>
+    <ul>
+      <li>Tortilla Chips</li>
+      <li>Beef Jerky</li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+    <!-- Drinks (aisle 7) -->
+    <h2>Drinks</h2>
+    <ul>
+      <li>Soy milk</li>
+      <li>Almond milk</li>
+      <li>Juice</li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+    <!-- Paper Goods (aisle 8) -->
+    <h2>Paper Goods</h2>
+    <ul>
+      <li>Paper towels</li>
+      <li>Al Foil</li>
+      <li>Baggies</li>
+      <li>Detergent</li>
+      <li>Parchment</li>
+      <li>Tissues</li>
+      <li>TP</li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </section>
+
+  <section>
+    <!-- Bread/Deli (aisle 10) -->
+    <h2>Deli</h2>
+    <ul>
+      <li>Mont. Jack</li>
+      <li>Cheddar</li>
+      <li>American</li>
+      <li>Sand Bread</li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+    <!-- Frozen (aisle 9) -->
+    <h2>Frozen</h2>
+    <ul>
+      <li>Blueberries</li>
+      <li>Bread Ses</li>
+      <li>Bread GF</li>
+      <li>Broccoli</li>
+      <li>Butternut Sq</li>
+      <li>Cauliflower</li>
+      <li>Chk Tenders</li>
+      <li>Corn</li>
+      <li>Peas</li>
+      <li>Pizza</li>
+      <li>Shrimp</li>
+      <li>Spinach</li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+    <h2>Other</h2>
+    <ul>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </section>
+</div>
+</div><!-- .half -->
+</div><!-- .page -->
+
+<script>
+  var half = document.querySelector('.half');
+  half.parentNode.appendChild(half.cloneNode(true));
+</script>
+</body>
+</html>

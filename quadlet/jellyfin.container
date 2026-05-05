@@ -1,0 +1,21 @@
+[Unit]
+Description=Jellyfin Media Server
+After=network-online.target mnt-nas-video.automount mnt-nas-music.automount
+
+[Container]
+ContainerName=jellyfin
+Image=docker.io/jellyfin/jellyfin:latest
+Volume=%h/srv/jellyfin/config:/config:Z
+Volume=%h/srv/jellyfin/cache:/cache:Z
+Volume=/mnt/nas/video:/media/video:ro
+Volume=/mnt/nas/music:/media/music:ro
+SecurityLabelDisable=true
+Environment=TZ=America/New_York
+Network=host
+
+[Service]
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

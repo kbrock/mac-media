@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mac-media</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, system-ui, sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 2rem; }
+    h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 1.5rem; color: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; max-width: 900px; }
+    a.card {
+      display: block; padding: 1.2rem; border-radius: 8px; text-decoration: none;
+      background: #16213e; border: 1px solid #0f3460; color: #e0e0e0;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    a.card:hover { background: #1a2847; border-color: #e94560; }
+    .card .name { font-size: 1.1rem; font-weight: 500; color: #fff; margin-bottom: 0.3rem; }
+    .card .desc { font-size: 0.85rem; color: #999; }
+    .card .port { font-size: 0.75rem; color: #666; margin-top: 0.4rem; }
+    .section { margin-top: 2rem; margin-bottom: 0.8rem; font-size: 0.9rem; color: #666; text-transform: uppercase; letter-spacing: 0.1em; }
+  </style>
+</head>
+<body>
+  <h1>mac-media</h1>
+
+  <div class="section">Media</div>
+  <div class="grid">
+    <a class="card" href="http://mac-media:8096">
+      <div class="name">Jellyfin</div>
+      <div class="desc">Movies and TV</div>
+      <div class="port">:8096</div>
+    </a>
+    <a class="card" href="http://mac-media:4533">
+      <div class="name">Navidrome</div>
+      <div class="desc">Music</div>
+      <div class="port">:4533</div>
+    </a>
+  </div>
+
+  <div class="section">Home</div>
+  <div class="grid">
+    <a class="card" href="http://mac-media:8123">
+      <div class="name">Home Assistant</div>
+      <div class="desc">Automation and devices</div>
+      <div class="port">:8123</div>
+    </a>
+  </div>
+
+  <div class="section">Tools</div>
+  <div class="grid">
+    <a class="card" href="/groceries.html">
+      <div class="name">Groceries</div>
+      <div class="desc">Printable grocery list</div>
+    </a>
+  </div>
+
+  <div class="section">Admin</div>
+  <div class="grid">
+    <a class="card" href="https://mac-media:9090">
+      <div class="name">Cockpit</div>
+      <div class="desc">Server management</div>
+      <div class="port">:9090</div>
+    </a>
+    <a class="card" href="http://192.168.1.1">
+      <div class="name">Router</div>
+      <div class="desc">Unifi Dream Machine</div>
+    </a>
+    <a class="card" href="http://diskstation:5000">
+      <div class="name">NAS</div>
+      <div class="desc">Synology DiskStation</div>
+      <div class="port">:5000</div>
+    </a>
+  </div>
+</body>
+</html>
