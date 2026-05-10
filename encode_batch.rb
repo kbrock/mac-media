@@ -1,39 +1,34 @@
 #!/usr/bin/env ruby
-# Batch encode ISOs to H.265 MKV using MakeMKV extract + HandBrake encode.
-# MakeMKV handles all disc types including encrypted DVDs.
-# Picks English audio (including commentary), synthesizes stereo fallback.
-# Keeps English subs. Drops foreign language tracks.
+# Encode DVD ISOs to H.265 MKV using MakeMKV extract + HandBrake encode.
+# Walks Videos/<category>/*.iso, writes encoded/<category>/<name>/<name>.mkv.
+# Uses HandBrake's animation tune for ISOs under animated/.
+# Keeps all audio tracks (English first), synthesizes a stereo fallback.
+# Keeps English subtitles. Skips already-encoded files so it's safe to restart.
 #
-#   ruby encode_batch.rb                # encode all non-animated
-#   ruby encode_batch.rb --animated     # only animated
-#   ruby encode_batch.rb --all          # both animated and non-animated
-#   ruby encode_batch.rb --dry-run      # show what would be done
+#   ruby encode_batch.rb                    # encode all categories
+#   ruby encode_batch.rb --only animated    # one category
+#   ruby encode_batch.rb --dry-run          # show what would be done
 
 require "fileutils"
 require "open3"
 require "json"
 
-ISO_ROOT   = "/Volumes/BigBadWolf/Video_ISO"
-OUTPUT     = File.expand_path("~/Movies/encoded")
-TMP_DIR    = File.expand_path("~/Movies/mkv_temp")
-LOG_FILE   = File.join(OUTPUT, "encode_log.txt")
-FAIL_FILE  = File.join(OUTPUT, "encode_failures.txt")
-MAKEMKV    = "/Applications/MakeMKV.app/Contents/MacOS/makemkvcon"
+VIDEOS    = "/Volumes/BigBadWolf/Videos"
+OUTPUT    = File.expand_path("~/Movies/encoded")
+TMP_DIR   = File.expand_path("~/Movies/mkv_temp")
+LOG_FILE  = File.join(OUTPUT, "encode_log.txt")
+FAIL_FILE = File.join(OUTPUT, "encode_failures.txt")
+MAKEMKV   = "/Applications/MakeMKV.app/Contents/MacOS/makemkvcon"
 
-ANIMATED_DIRS = %w[animated redo/animated].freeze
-NON_ANIMATED_DIRS = %w[adults kids misc redo/adults redo/kids redo/misc].freeze
+CATEGORIES = %w[animated home_videos live].freeze
+ANIMATED   = "animated"
 
-dry_run       = ARGV.delete("--dry-run")
-animated_only = ARGV.delete("--animated")
-all_dirs      = ARGV.delete("--all")
+dry_run = ARGV.delete("--dry-run")
+only_idx = ARGV.index("--only")
+only = only_idx && ARGV[only_idx + 1]
+ARGV.slice!(only_idx, 2) if only_idx
 
-dirs = if all_dirs
-         ANIMATED_DIRS + NON_ANIMATED_DIRS
-       elsif animated_only
-         ANIMATED_DIRS
-       else
-         NON_ANIMATED_DIRS
-       end
+categories = only ? [only] : CATEGORIES
 
 def log(msg)
   line = "[#{Time.now.strftime("%H:%M:%S")}] #{msg}"
@@ -41,17 +36,11 @@ def log(msg)
   File.open(LOG_FILE, "a") { |f| f.puts line }
 end
 
-# Extract the longest title from an ISO using MakeMKV.
-# Returns path to extracted MKV, or nil on failure.
 def extract(iso_path, tmp)
   FileUtils.rm_rf(tmp)
   FileUtils.mkdir_p(tmp)
-  out, status = Open3.capture2(
-    MAKEMKV, "mkv", "iso:#{iso_path}", "0", "#{tmp}/",
-    err: [:child, :out]
-  )
+  out, status = Open3.capture2(MAKEMKV, "mkv", "iso:#{iso_path}", "0", "#{tmp}/", err: [:child, :out])
   out = out.encode("UTF-8", invalid: :replace, undef: :replace)
-
   mkv = Dir.glob("#{tmp}/*.mkv").max_by { |f| File.size(f) }
   return mkv if mkv && File.size(mkv) > 1_000_000
 
@@ -59,11 +48,8 @@ def extract(iso_path, tmp)
   nil
 end
 
-# Probe an MKV for audio and subtitle streams using ffprobe.
 def probe_tracks(mkv_path)
-  json, status = Open3.capture2(
-    "ffprobe", "-v", "quiet", "-print_format", "json", "-show_streams", mkv_path
-  )
+  json, status = Open3.capture2("ffprobe", "-v", "quiet", "-print_format", "json", "-show_streams", mkv_path)
   return nil unless status.success?
 
   data = JSON.parse(json)
@@ -73,9 +59,6 @@ def probe_tracks(mkv_path)
   audio_idx = 0
   sub_idx = 0
 
-  # Keep ALL audio tracks. Foreign-language defaults caused the original bug
-  # where some movies ended up with only French/Spanish audio. Track the
-  # language list so caller can warn when no English is present.
   data["streams"].each do |s|
     case s["codec_type"]
     when "audio"
@@ -89,10 +72,9 @@ def probe_tracks(mkv_path)
     end
   end
 
-  # Reorder so English (or undefined) comes first — that becomes the default track
-  english_first = audio_indices.zip(audio_langs).sort_by { |_, l| l == "eng" ? 0 : (l == "und" ? 1 : 2) }
-  audio_indices = english_first.map(&:first)
-  audio_langs = english_first.map(&:last)
+  paired = audio_indices.zip(audio_langs).sort_by { |_, l| l == "eng" ? 0 : (l == "und" ? 1 : 2) }
+  audio_indices = paired.map(&:first)
+  audio_langs = paired.map(&:last)
 
   audio_indices = [1] if audio_indices.empty?
   { audio: audio_indices, subs: sub_indices, langs: audio_langs }
@@ -100,59 +82,44 @@ rescue JSON::ParserError
   nil
 end
 
-def build_command(mkv_path, out_file, tracks, animated:)
+def build_command(mkv, out_file, tracks, animated:)
   audio_spec = tracks[:audio].dup
   encoders = audio_spec.map { "copy" }
   mixdowns = audio_spec.map { "none" }
   drcs = audio_spec.map { "0" }
 
-  # Always synth stereo from first English track for surround-incapable devices
   audio_spec << audio_spec.first
   encoders << "av_aac"
   mixdowns << "stereo"
   drcs << "2.0"
 
   args = [
-    "HandBrakeCLI",
-    "--input", mkv_path,
-    "--output", out_file,
-    "--format", "av_mkv",
-    "--encoder", "x265_10bit",
-    "--encoder-preset", "slow",
-    "--quality", "20",
+    "HandBrakeCLI", "--input", mkv, "--output", out_file,
+    "--format", "av_mkv", "--encoder", "x265_10bit",
+    "--encoder-preset", "slow", "--quality", "20",
     "--audio", audio_spec.join(","),
     "--aencoder", encoders.join(","),
     "--mixdown", mixdowns.join(","),
     "--drc", drcs.join(","),
     "--markers",
   ]
-
-  if tracks[:subs].any?
-    args += ["--subtitle", tracks[:subs].join(",")]
-  end
-
-  if animated
-    args += ["--encoder-tune", "animation"]
-  else
-    args += ["--encopts", "strong-intra-smoothing=0:psy-rd=2.0"]
-  end
-
+  args += ["--subtitle", tracks[:subs].join(",")] if tracks[:subs].any?
+  args += animated ? ["--encoder-tune", "animation"] : ["--encopts", "strong-intra-smoothing=0:psy-rd=2.0"]
   args
 end
 
-# Collect ISOs
 isos = []
-dirs.each do |dir|
-  path = File.join(ISO_ROOT, dir)
+categories.each do |cat|
+  path = File.join(VIDEOS, cat)
   next unless File.directory?(path)
   Dir.glob(File.join(path, "*.iso")).sort.each do |iso|
-    isos << { path: iso, category: dir, animated: ANIMATED_DIRS.include?(dir) }
+    isos << { path: iso, category: cat, animated: cat == ANIMATED }
   end
 end
 
 FileUtils.mkdir_p(OUTPUT)
 FileUtils.mkdir_p(TMP_DIR)
-log "Found #{isos.size} ISOs to process"
+log "Found #{isos.size} ISOs (#{categories.join(", ")})"
 log "Mode: #{dry_run ? 'DRY RUN' : 'ENCODE'}"
 
 encoded = 0
@@ -161,7 +128,7 @@ failed = []
 
 isos.each_with_index do |iso, i|
   name = File.basename(iso[:path], ".iso")
-  out_dir = File.join(OUTPUT, iso[:category])
+  out_dir = File.join(OUTPUT, iso[:category], name)
   out_file = File.join(out_dir, "#{name}.mkv")
   label = "#{iso[:category]}/#{name}"
 
@@ -172,7 +139,6 @@ isos.each_with_index do |iso, i|
   end
 
   tmp = File.join(TMP_DIR, name.gsub(/\s+/, "_"))
-
   log "[#{i + 1}/#{isos.size}] Extracting: #{label}"
 
   if dry_run
@@ -196,7 +162,7 @@ isos.each_with_index do |iso, i|
     FileUtils.rm_rf(tmp)
     next
   end
-  log "  Audio: #{tracks[:audio].zip(tracks[:langs]).map { |i, l| "#{i}(#{l})" }.join(",")} +synth stereo"
+  log "  Audio: #{tracks[:audio].zip(tracks[:langs]).map { |n, l| "#{n}(#{l})" }.join(",")} +synth stereo"
   unless tracks[:langs].include?("eng")
     log "  WARN: no English audio detected (langs: #{tracks[:langs].uniq.join(",")})"
     File.open(File.join(OUTPUT, "no_english_audio.txt"), "a") { |f| f.puts label }
