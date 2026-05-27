@@ -6,6 +6,7 @@ nas_movie_metadata.txt
 
 # Local credentials (should never appear, defensive)
 *.cred
+*.env
 .env
 .env.*
 *credentials*
