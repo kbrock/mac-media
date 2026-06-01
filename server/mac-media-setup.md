@@ -103,5 +103,5 @@ Then in HA: Settings > Integrations > Add > HACS. Requires a GitHub personal acc
 ## Integrations
 
 - **Govee lights**: built-in "Govee lights local". Enable LAN control per light in the Govee app first.
-- **Ecobee**: TBD — developer API removed, HomeKit pairing not discovering.
-- **Pulsar charger**: TBD
+- **Ecobee 3**: integrated.
+- **Pulsar charger**: integrated.

@@ -113,11 +113,14 @@
   }
 
   @page {
-    size: 11in 8.5in landscape;
-    margin: 0.1in 0.125in;
+    size: landscape;
+    margin: 0;
   }
 
   @media print {
+    body {
+      padding: 0.1in 0.125in;
+    }
     section.overflow {
       background: inherit;
       color: inherit;
@@ -150,6 +153,7 @@
       <li>Apples</li>
       <li>Avocados</li>
       <li>Bananas</li>
+      <li>Blue Berries</li>
       <li>Bok choy</li>
       <li>Broccoli</li>
       <li>Cantaloupe</li>
@@ -176,7 +180,6 @@
       <li></li>
       <li></li>
       <li></li>
-      <li></li>
     </ul>
   </section>
 
@@ -194,7 +197,7 @@
       <li></li>
     </ul>
     <!-- Nuts (aisle 2,3) -->
-    <h2>Nuts / Soap</h2>
+    <h2>Nuts / Soap 2</h2>
     <ul>
       <li>Collagen</li>
       <li>Electrolytes</li>
@@ -203,13 +206,13 @@
       <li>Seed Trio</li>
       <li>Dr. Bronners</li>
       <li>Hair Sh/Cnd</li>
-      <li>Conditioner</li>
       <li>Lotion</li>
+      <li></li>
       <li></li>
       <li></li>
     </ul>
     <!-- Asian (aisle 4) -->
-    <h2>Asian / Cans</h2>
+    <h2>Asian 4</h2>
     <ul>
       <li>Beans</li>
       <li>Seaweed</li>
@@ -218,7 +221,7 @@
       <li></li>
     </ul>
     <!-- Sauce (aisle 5) -->
-    <h2>Sauces</h2>
+    <h2>Sauces 4</h2>
     <ul>
       <li>Sun Butter</li>
       <li>NutZoo</li>
@@ -237,7 +240,7 @@
 
   <section>
     <!-- Crackers (aisle 6?) -->
-    <h2>Crackers</h2>
+    <h2>Crackers 5</h2>
     <ul>
       <li>HU Mint</li>
       <li>HU Hazelnut</li>
@@ -249,22 +252,26 @@
       <li></li>
     </ul>
     <!-- Chips (aisle 6?) -->
-    <h2>Chips</h2>
+    <h2>Chips 6</h2>
     <ul>
       <li>Tortilla Chips</li>
       <li>Beef Jerky</li>
+      <li>Bldr Chips</li>
+      <li></li>
+      <li></li>
+      <li></li>
       <li></li>
       <li></li>
       <li></li>
       <li></li>
     </ul>
     <!-- Drinks (aisle 7) -->
-    <h2>Drinks</h2>
+    <h2>Drinks 7</h2>
     <ul>
       <li>Soy milk</li>
       <li>Almond milk</li>
+      <li>Ginger Ale</li>
       <li>Juice</li>
-      <li></li>
       <li></li>
       <li></li>
       <li></li>
@@ -283,41 +290,43 @@
       <li></li>
       <li></li>
       <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
     </ul>
   </section>
 
   <section>
     <!-- Bread/Deli (aisle 10) -->
-    <h2>Deli</h2>
+    <h2>Deli 10</h2>
     <ul>
       <li>Mont. Jack</li>
       <li>Cheddar</li>
       <li>American</li>
-      <li>Sand Bread</li>
+      <li>Sand Bread<b>*</b></li>
+      <li>Ham Buns<b>*</b></li>
+      <li>Hot Buns<b>*</b></li>
       <li></li>
       <li></li>
       <li></li>
       <li></li>
     </ul>
     <!-- Frozen (aisle 9) -->
-    <h2>Frozen</h2>
+    <h2>Frozen 9</h2>
     <ul>
-      <li>Blueberries</li>
-      <li>Bread Ses</li>
+      <li>Blue Berries</li>
+      <li>Bread Ses<b>*</b></li>
       <li>Bread GF</li>
       <li>Broccoli</li>
       <li>Butternut Sq</li>
       <li>Cauliflower</li>
       <li>Chk Tenders</li>
+      <li>Coc Shrimp</li>
+      <li>Cod</li>
       <li>Corn</li>
       <li>Peas</li>
       <li>Pizza</li>
-      <li>Shrimp</li>
       <li>Spinach</li>
+      <li></li>
+      <li></li>
+      <li></li>
       <li></li>
       <li></li>
       <li></li>
@@ -325,19 +334,13 @@
     </ul>
     <h2>Other</h2>
     <ul>
+      <li>Dog Food</li>
       <li></li>
       <li></li>
       <li></li>
       <li></li>
       <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
+      <li>* <b>Not GF</b></li>
     </ul>
   </section>
 </div>

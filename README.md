@@ -15,7 +15,7 @@ Personal home server. Runs media and smart-home services for the household.
 - [x] [Jellyfin](quadlet/jellyfin.container)
 - [x] [Navidrome](quadlet/navidrome.container)
 - [x] [Landing page](quadlet/landing.container)
-- [ ] SSO
+- [ ] Authelia (SSO via OIDC, needs subdomains)
 
 ## Rebuild from scratch
 
