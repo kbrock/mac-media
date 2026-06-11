@@ -107,12 +107,12 @@ fi
 # 1. BASE PACKAGES
 ############################################################################
 if section base-packages; then
-  if rpm -q cockpit &>/dev/null; then
-    echo "cockpit: already installed"
-  else
-    sudo dnf install -y cockpit
-    sudo systemctl enable --now cockpit.socket
-  fi
+  sudo dnf install -y \
+    cockpit \
+    nginx \
+    certbot python3-certbot-dns-cloudflare
+
+  systemctl is-enabled cockpit.socket &>/dev/null || sudo systemctl enable --now cockpit.socket
 fi
 
 ############################################################################
@@ -149,11 +149,7 @@ fi
 # 3. PODMAN (user-mode containers)
 ############################################################################
 if section podman; then
-  if systemctl --user is-enabled podman.socket &>/dev/null; then
-    echo "podman.socket: already enabled"
-  else
-    systemctl --user enable --now podman.socket
-  fi
+  systemctl --user is-enabled podman.socket &>/dev/null || systemctl --user enable --now podman.socket
 
   if loginctl show-user "$(whoami)" 2>/dev/null | grep -q 'Linger=yes'; then
     echo "linger: already enabled for $(whoami)"
@@ -166,12 +162,7 @@ fi
 # 4. NGINX (RPM, reverse proxy)
 ############################################################################
 if section nginx; then
-  if rpm -q nginx &>/dev/null; then
-    echo "nginx: already installed"
-  else
-    sudo dnf install -y nginx
-    sudo systemctl enable --now nginx
-  fi
+  systemctl is-enabled nginx &>/dev/null || sudo systemctl enable --now nginx
 
   if [ "$(getsebool httpd_can_network_connect 2>/dev/null | awk '{print $3}')" = "on" ]; then
     echo "SELinux httpd_can_network_connect: already on"
@@ -193,10 +184,6 @@ fi
 # SELinux: certbot RPM sets fcontext policy; restorecon -RF applies it.
 
 if section certbot; then
-  rpm -q certbot &>/dev/null && rpm -q python3-certbot-dns-cloudflare &>/dev/null \
-    && echo "certbot: already installed" \
-    || sudo dnf install -y certbot python3-certbot-dns-cloudflare
-
   if [ -f /etc/letsencrypt/cloudflare.ini ]; then
     echo "/etc/letsencrypt/cloudflare.ini: already installed"
   elif [ -f ./certbot/cloudflare.ini ]; then
@@ -219,11 +206,7 @@ if section certbot; then
     sudo restorecon -RFv /etc/letsencrypt/
   fi
 
-  if systemctl is-enabled certbot-renew.timer &>/dev/null; then
-    echo "certbot-renew.timer: already enabled"
-  else
-    sudo systemctl enable --now certbot-renew.timer
-  fi
+  systemctl is-enabled certbot-renew.timer &>/dev/null || sudo systemctl enable --now certbot-renew.timer
 fi
 
 ############################################################################
