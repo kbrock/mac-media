@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Mac Mini (mac-media) server setup from bare Fedora install.
 #
-# Idempotent: each section checks current state before doing work.
-# Prompts before installing or changing anything.
+# Idempotent: state-check before each action. Only prompts on destructive
+# or rate-limited actions (initial LE cert issuance).
+# Bootstrap (ethernet, getting the repo on the box) is in setup_ethernet.sh.
+#
 # Run section by section; do not pipe to bash blind.
 #
 # Last validated: 2026-05 on Fedora 43
@@ -28,24 +30,7 @@ section() {
 }
 
 ############################################################################
-# 1. ETHERNET
-############################################################################
-if section ethernet; then
-  if nmcli device status | awk '/connected/ && $2 != "lo" {found=1} END {exit !found}'; then
-    echo "Already have a connected interface."
-    nmcli device status
-  else
-    iface=$(nmcli device status | awk '/disconnected/ {print $1; exit}')
-    if [ -n "$iface" ] && ask "Configure $iface for DHCP + autoconnect?"; then
-      nmcli connection modify "$iface" ipv4.method auto
-      nmcli connection modify "$iface" connection.autoconnect yes
-      nmcli connection up "$iface"
-    fi
-  fi
-fi
-
-############################################################################
-# 2. WIFI (reference only — DO NOT enable on this server)
+# WIFI (reference only — DO NOT enable on this server)
 ############################################################################
 # History: we tried to use wifi on this Mac Mini once. Saga:
 #   - Need to bootstrap with internet to get RPMs
@@ -67,22 +52,24 @@ fi
 #   sudo akmods --force --rebuild
 #   sudo modprobe wl
 
-if section radios-off; then
+# Disabled (radios off, drivers removed). Flip to `if section radios-off; then`
+# if wifi/BT come back.
+if false; then  # was: section radios-off
   if rfkill list wifi 2>/dev/null | grep -q "Soft blocked: yes"; then
     echo "Wifi already soft-blocked."
-  elif ask "Disable wifi radio? (we don't use it)"; then
+  else
     nmcli radio wifi off
   fi
 
   if rfkill list bluetooth 2>/dev/null | grep -q "Soft blocked: yes"; then
     echo "Bluetooth already soft-blocked."
-  elif ask "Disable bluetooth? (we don't use it)"; then
+  else
     sudo rfkill block bluetooth
   fi
 fi
 
 ############################################################################
-# 3. KERNEL POST-UPDATE CHECK (run AFTER `dnf update`, BEFORE reboot)
+# KERNEL POST-UPDATE CHECK (run AFTER `dnf update`, BEFORE reboot)
 ############################################################################
 # Background: third-party kernel modules (akmod-wl, akmod-nvidia, dkms-*) are
 # rebuilt against each new kernel. If you reboot before akmods completes, you
@@ -91,8 +78,11 @@ fi
 #
 # Run this section after every `sudo dnf update` that includes a kernel.
 # Reboot ONLY when this section reports clean.
-
-if section kernel-check; then
+#
+# Disabled: no akmod-* installed. kmod/DKMS modules rebuild synchronously
+# inside the dnf transaction so they don't need this check. Re-enable below
+# if akmods come back.
+if false; then  # was: section kernel-check
   running=$(uname -r)
   newest=$(rpm -q kernel-core --qf "%{VERSION}-%{RELEASE}.%{ARCH}\n" | sort -V | tail -1)
   echo "Running kernel: $running"
@@ -109,112 +99,164 @@ if section kernel-check; then
   echo ""
   if rpm -qa | grep -q '^akmod-'; then
     echo "Force-rebuild all akmods against newest kernel? This is the safety check."
-    if ask "Rebuild now?"; then
-      sudo akmods --force --rebuild
-    fi
+    sudo akmods --force --rebuild
   fi
 fi
 
 ############################################################################
-# 4. BASE PACKAGES
+# 1. BASE PACKAGES
 ############################################################################
 if section base-packages; then
   if rpm -q cockpit &>/dev/null; then
-    echo "cockpit already installed"
-  elif ask "Install cockpit (web admin UI)?"; then
+    echo "cockpit: already installed"
+  else
     sudo dnf install -y cockpit
     sudo systemctl enable --now cockpit.socket
   fi
 fi
 
 ############################################################################
-# 5. FIREWALL
+# 2. FIREWALL
 ############################################################################
 if section firewall; then
   add_svc() {
     if sudo firewall-cmd --list-services | grep -qw "$1"; then
       echo "  service $1: already open"
-    elif ask "  Open service $1?"; then
+    else
       sudo firewall-cmd --permanent --add-service="$1"
     fi
   }
   add_port() {
     if sudo firewall-cmd --list-ports | grep -qw "$1"; then
       echo "  port $1: already open"
-    elif ask "  Open port $1 ($2)?"; then
+    else
       sudo firewall-cmd --permanent --add-port="$1"
     fi
   }
 
   add_svc cockpit
   add_svc mdns       # 5353/udp for HA device discovery
-  add_port 80/tcp    "nginx"
+  add_port 80/tcp    "nginx http"
+  add_port 443/tcp   "nginx https"
   add_port 4533/tcp  "navidrome"
   add_port 8096/tcp  "jellyfin"
   add_port 8123/tcp  "home assistant"
 
-  if ask "Reload firewall?"; then
-    sudo firewall-cmd --reload
-  fi
+  sudo firewall-cmd --reload
 fi
 
 ############################################################################
-# 6. PODMAN (user-mode containers)
+# 3. PODMAN (user-mode containers)
 ############################################################################
 if section podman; then
   if systemctl --user is-enabled podman.socket &>/dev/null; then
-    echo "podman.socket already enabled for user"
-  elif ask "Enable user-mode podman socket?"; then
+    echo "podman.socket: already enabled"
+  else
     systemctl --user enable --now podman.socket
   fi
 
   if loginctl show-user "$(whoami)" 2>/dev/null | grep -q 'Linger=yes'; then
-    echo "Linger already enabled for $(whoami)"
-  elif ask "Enable lingering (so user services start on boot, not just login)?"; then
+    echo "linger: already enabled for $(whoami)"
+  else
     loginctl enable-linger "$(whoami)"
   fi
 fi
 
 ############################################################################
-# 7. NGINX (RPM, reverse proxy on port 80)
+# 4. NGINX (RPM, reverse proxy)
 ############################################################################
 if section nginx; then
   if rpm -q nginx &>/dev/null; then
-    echo "nginx already installed"
-  elif ask "Install nginx (reverse proxy)?"; then
+    echo "nginx: already installed"
+  else
     sudo dnf install -y nginx
     sudo systemctl enable --now nginx
   fi
 
   if [ "$(getsebool httpd_can_network_connect 2>/dev/null | awk '{print $3}')" = "on" ]; then
     echo "SELinux httpd_can_network_connect: already on"
-  elif ask "Allow nginx to proxy to local containers (SELinux boolean)?"; then
+  else
     sudo setsebool -P httpd_can_network_connect 1
   fi
 
-  echo "Then: scp nginx/nginx.conf and nginx/mac-media.conf into /etc/nginx/"
+  echo "Then: scp nginx/nginx.conf and nginx/home.conf into /etc/nginx/"
 fi
 
 ############################################################################
-# 8. NAS MOUNTS (SMB)
+# 5. CERTBOT (Let's Encrypt wildcard via Cloudflare DNS-01)
 ############################################################################
-if section nas-mounts; then
-  if [ -f /etc/samba/private/nas-movies.cred ]; then
-    echo "Credential file exists at /etc/samba/private/nas-movies.cred"
+# certbot + python3-certbot-dns-cloudflare via dnf. Renewal via
+# certbot-renew.timer (ships with the RPM). Credentials in
+# /etc/letsencrypt/cloudflare.ini (600 root:root), sourced from
+# ./certbot/cloudflare.ini in staging (gitignored, never committed).
+# Initial --certonly is rate-limited — guarded by cert check AND prompt.
+# SELinux: certbot RPM sets fcontext policy; restorecon -RF applies it.
+
+if section certbot; then
+  rpm -q certbot &>/dev/null && rpm -q python3-certbot-dns-cloudflare &>/dev/null \
+    && echo "certbot: already installed" \
+    || sudo dnf install -y certbot python3-certbot-dns-cloudflare
+
+  if [ -f /etc/letsencrypt/cloudflare.ini ]; then
+    echo "/etc/letsencrypt/cloudflare.ini: already installed"
+  elif [ -f ./certbot/cloudflare.ini ]; then
+    sudo install -m 600 -o root -g root ./certbot/cloudflare.ini /etc/letsencrypt/cloudflare.ini
+    rm ./certbot/cloudflare.ini
   else
-    echo "Create /etc/samba/private/nas-movies.cred first."
-    echo "See nas-mounts/setup.sh header for format."
+    echo "  Skip — ./certbot/cloudflare.ini not present in staging."
   fi
 
-  if [ -f /etc/systemd/system/mnt-nas-video.mount ]; then
-    echo "NAS mount units already installed"
-  elif ask "Run nas-mounts/setup.sh?"; then
-    sudo bash nas-mounts/setup.sh
+  if [ -f /etc/letsencrypt/live/home.thebrocks.net/fullchain.pem ]; then
+    echo "Cert: already issued for home.thebrocks.net"
+  elif ask "Run certbot certonly for home.thebrocks.net + wildcard (one-time, rate-limited)?"; then
+    sudo certbot certonly \
+      --dns-cloudflare \
+      --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini \
+      --email keenan@thebrocks.net \
+      --agree-tos \
+      -d home.thebrocks.net \
+      -d '*.home.thebrocks.net'
+    sudo restorecon -RFv /etc/letsencrypt/
+  fi
+
+  if systemctl is-enabled certbot-renew.timer &>/dev/null; then
+    echo "certbot-renew.timer: already enabled"
+  else
+    sudo systemctl enable --now certbot-renew.timer
   fi
 fi
 
 ############################################################################
-# 9. CONTAINERS (deploy quadlets)
+# 6. NAS MOUNTS (SMB to Synology)
+############################################################################
+# Unit files in ./nas-mounts/. Credential file is created manually as root —
+# password is sensitive, never in repo, never scp'd. To create:
+#   sudo mkdir -p /etc/samba/private
+#   sudo tee /etc/samba/private/nas-movies.cred > /dev/null << 'EOF'
+#   username=YOUR_USER
+#   password=YOUR_PASSWORD
+#   domain=WORKGROUP
+#   EOF
+#   sudo chmod 600 /etc/samba/private/nas-movies.cred
+
+if section nas-mounts; then
+  if [ ! -f /etc/samba/private/nas-movies.cred ]; then
+    echo "Missing /etc/samba/private/nas-movies.cred — see comment above."
+  elif [ -f /etc/systemd/system/mnt-nas-video.mount ]; then
+    echo "NAS mount units: already installed"
+  else
+    sudo mkdir -p /mnt/nas/video /mnt/nas/music
+    sudo install -m 644 nas-mounts/mnt-nas-video.mount      /etc/systemd/system/
+    sudo install -m 644 nas-mounts/mnt-nas-music.mount      /etc/systemd/system/
+    sudo install -m 644 nas-mounts/mnt-nas-video.automount  /etc/systemd/system/
+    sudo install -m 644 nas-mounts/mnt-nas-music.automount  /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now mnt-nas-video.automount mnt-nas-music.automount
+  fi
+fi
+
+############################################################################
+# 7. CONTAINERS (deploy quadlets)
 ############################################################################
 if section containers; then
   echo "From your laptop:"

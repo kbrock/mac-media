@@ -8,8 +8,7 @@ setup:
 	rsync -av --exclude='*.env' server/ $(REMOTE):server/
 
 creds:
-	ssh $(REMOTE) 'mkdir -p server/acme'
-	scp -p server/acme/cloudflare.env $(REMOTE):server/acme/cloudflare.env
+	scp -p server/certbot/cloudflare.ini $(REMOTE):server/certbot/cloudflare.ini
 
 landing:
 	rsync -av --delete server/landing/ $(REMOTE):srv/landing/

@@ -11,6 +11,7 @@ nas_movie_metadata.txt
 .env.*
 *credentials*
 *secrets*
+cloudflare.ini
 
 # OS noise
 .DS_Store
