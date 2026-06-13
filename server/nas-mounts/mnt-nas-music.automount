@@ -1,0 +1,9 @@
+[Unit]
+Description=Automount NAS Music Share
+
+[Automount]
+Where=/mnt/nas/music
+TimeoutIdleSec=0
+
+[Install]
+WantedBy=multi-user.target

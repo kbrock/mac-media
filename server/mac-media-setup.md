@@ -65,6 +65,32 @@ rfkill unblock bluetooth
 - Interface: `enp1s0f0` (ethernet)
 - Static IP: reserve via Unifi DHCP (Clients > mac-media > Fixed IP)
 
+### First-console bootstrap
+
+Fresh install, no network yet. Type the commands from `setup_ethernet.sh`
+at the Mac mini's console. Once ethernet is up, run `make setup` from your
+laptop to push the repo.
+
+## DNS (UDM, manual via UniFi Network UI)
+
+UDM (`fortknox`, 192.168.1.1) serves local DNS for `*.home.thebrocks.net`.
+
+1. Settings → Networks → Your LAN → set **Domain Name** = `home.thebrocks.net`
+   (DHCP-pushed search suffix; lets clients resolve `hub` as `hub.home.thebrocks.net`).
+2. Settings → Policy Engine → DNS → Static DNS Entries → Create:
+
+   | Type | Hostname               | Value           |
+   |------|------------------------|-----------------|
+   | A    | `mac-media`            | 192.168.1.246   |
+   | A    | `*.home.thebrocks.net` | 192.168.1.246   |
+
+3. Verify from a LAN device:
+   ```
+   dig @192.168.1.1 anything.home.thebrocks.net
+   ```
+   Returns `192.168.1.246`.
+
+
 ## Deploy Home Assistant
 
 ```bash
@@ -105,3 +131,46 @@ Then in HA: Settings > Integrations > Add > HACS. Requires a GitHub personal acc
 - **Govee lights**: built-in "Govee lights local". Enable LAN control per light in the Govee app first.
 - **Ecobee 3**: integrated.
 - **Pulsar charger**: integrated.
+
+## Home Assistant — nginx reverse proxy config
+
+Edit `~/srv/homeassistant/config/configuration.yaml` on mac-media:
+
+```yaml
+homeassistant:
+  external_url: https://hub.home.thebrocks.net
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+
+homeassistant:
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - 127.0.0.1/32
+      trusted_users:
+        127.0.0.1: kbrock
+      allow_bypass_login: true
+    - type: homeassistant
+```
+
+Then restart: `systemctl --user restart homeassistant`
+
+Without `http:` block, HA returns 400 when accessed via nginx.
+The `trusted_networks` provider auto-logs in as kbrock when request arrives
+via nginx (127.0.0.1). The `homeassistant` provider kept as fallback for
+direct access. Added as part of Authelia SSO setup.
+
+## Jellyfin — SSO plugin
+
+Install via Jellyfin UI (one-time, survives container restarts via plugin data volume):
+
+1. Dashboard → Plugins → Repositories → Add:
+   `https://raw.githubusercontent.com/9p4/jellyfin-plugin-sso/manifest-release/manifest.json`
+2. Restart Jellyfin: `systemctl --user restart jellyfin`
+3. Dashboard → Plugins → Catalog → hard-refresh the browser (Cmd+Shift+R)
+4. Find **SSO-Auth**, install, restart Jellyfin again.
+
+Plugin v4.x targets Jellyfin 10.11+. If the catalog shows nothing after restart, hard-refresh — the catalog caches aggressively.

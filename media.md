@@ -10,7 +10,7 @@ Pipeline: ISO → MakeMKV → HandBrake → NAS (Jellyfin/Navidrome read-only mo
 - **NAS** `/volume1/Video/{Movies,Christmas,Misc}/<Title (Year)>/<Title (Year)>.mkv`. Local SMB mount at `/Volumes/Video/`.
 
 ## Chapter titles
-Old iTunes rips had named chapters; new disc rips have generic ones. Extract with `ffprobe -show_chapters` on the old rip, apply to the new MKV with `mkvpropedit --chapters chapters.xml`. Best practice: save XML as `<Title>.chapters.xml` next to source on BigBadWolf (self-contained, no central master list).
+Chapter titles are embedded in the current MKVs on the NAS (the Jellyfin library). If a re-encode needs them: `ffprobe -show_chapters <nas-source.mkv>` to extract, `mkvpropedit --chapters chapters.xml <new.mkv>` to apply. Do this per-title only if/when it matters.
 
 ## Process
 1. Rip ISO from disc → BigBadWolf (MakeMKV, user-driven).
