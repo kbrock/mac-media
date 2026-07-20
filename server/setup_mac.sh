@@ -207,6 +207,36 @@ if section certbot; then
   fi
 
   systemctl is-enabled certbot-renew.timer &>/dev/null || sudo systemctl enable --now certbot-renew.timer
+
+  if [ -f ~/.ssh/id_diskstation ]; then
+    echo "diskstation SSH key: already present"
+  else
+    ssh-keygen -t ed25519 -f ~/.ssh/id_diskstation -N ""
+    echo "diskstation SSH key: generated"
+  fi
+
+  echo "(sudo: enter kbrock's password on mac-media)"
+  sudo bash -c '
+    if [ -f /root/.ssh/id_diskstation ]; then
+      echo "diskstation SSH key: already in root"
+    else
+      cp /home/kbrock/.ssh/id_diskstation /root/.ssh/id_diskstation
+      cp /home/kbrock/.ssh/id_diskstation.pub /root/.ssh/id_diskstation.pub
+      chmod 600 /root/.ssh/id_diskstation
+      echo "diskstation SSH key: copied to root"
+    fi
+
+    HOOK=/etc/letsencrypt/renewal-hooks/deploy/push-cert-diskstation.sh
+    if [ -f "${HOOK}" ]; then
+      echo "Certbot deploy hook: already installed"
+    else
+      install -m 755 -o root -g root ./certbot/push-cert-diskstation.sh "${HOOK}"
+      echo "Certbot deploy hook: installed"
+    fi
+  '
+
+  echo "(enter kbrock@diskstation password to authorize this key)"
+  ssh-copy-id -f -i ~/.ssh/id_diskstation.pub kbrock@diskstation
 fi
 
 ############################################################################

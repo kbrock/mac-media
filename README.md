@@ -29,3 +29,17 @@ systemctl --user daemon-reload && systemctl --user enable --now homeassistant je
 ```
 
 Then restore the Home Assistant backup via the HA web UI if available.
+
+## NAS setup (diskstation)
+
+From your local mac, in a clone of this repo:
+
+```bash
+bash server/setup_nas.sh cert-push
+```
+
+Prereq: SSH must be enabled on diskstation (DSM → Terminal & SNMP → Enable SSH service).
+Prereq: `setup_mac.sh certbot` must have run on mac-media first (generates the SSH key).
+
+This installs `~/install-cert.sh` on diskstation and authorizes mac-media's root SSH key.
+After that, certbot renewals on mac-media automatically push the updated cert to diskstation.
