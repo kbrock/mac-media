@@ -53,18 +53,6 @@ Custom Sections dashboard, halfway done.
 - Govee H6066 (no LAN; firmware update or skip)
 - VocoLinc SmartBar (HomeKit-native, locations unknown)
 
-## Cert distribution from mac-media
-
-Push the LE wildcard cert from mac-media to other LAN devices so their web
-UIs use a trusted cert instead of self-signed.
-
-Targets:
-- **diskstation.home.thebrocks.net** → Synology DSM 7. Tool: `synowebapi`
-  (community) — upload cert via DSM Certificate API, trigger service reload.
-- **fortknox.home.thebrocks.net** → UDM. Tool: `ubios-cert` (community)
-  — drops cert into the right path, restarts UniFi services.
-
-Simplest fallback: scp cert + key, bounce the relevant service.
 
 ## Vault
 

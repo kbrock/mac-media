@@ -57,6 +57,15 @@ appear in public DNS. This drives two decisions:
   them. HTTP-01 would require opening port 80 on the public internet to
   prove control — exact opposite of the goal.
 
+### Cert distribution
+
+Wildcard `*.home.thebrocks.net` is issued on mac-media via certbot
+(Cloudflare DNS-01) and pushed to LAN devices on renewal via deploy
+hook (`server/certbot/push-cert-diskstation.sh`).
+
+- **diskstation** — done. Pipes tar to `~/install-cert.sh` via SSH, reloads nginx.
+- **fortknox** — TODO. Tool: `ubios-cert` (community).
+
 ### Browser quirk for bare names
 
 Chrome treats a single-word URL (`movies`) as a search query, not a

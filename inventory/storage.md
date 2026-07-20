@@ -14,6 +14,7 @@ Treated as **dumb storage**. Slated for retirement. Don't host services on it.
 - 2 empty bays (4-bay chassis).
 - Used: 682GB. Drives are old, SMART clean.
 - DSM. User hacked the upgrade path once. Updates enabled.
+- SSL cert pushed from mac-media on renewal. See `inventory/network.md` for details.
 
 ### Mount (from mac-media)
 
