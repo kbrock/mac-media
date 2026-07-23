@@ -1,0 +1,22 @@
+[Unit]
+Description=Authelia SSO Portal
+After=network-online.target postgres.service valkey.service
+
+[Container]
+ContainerName=authelia
+Image=ghcr.io/authelia/authelia:latest
+Volume=%h/srv/authelia:/config:Z
+Secret=authelia_jwt_secret,type=env,target=AUTHELIA_JWT_SECRET
+Secret=authelia_session_secret,type=env,target=AUTHELIA_SESSION_SECRET
+Secret=authelia_storage_encryption_key,type=env,target=AUTHELIA_STORAGE_ENCRYPTION_KEY
+Secret=authelia_storage_postgres_password,type=env,target=AUTHELIA_STORAGE_POSTGRES_PASSWORD
+Secret=authelia_oidc_hmac_secret,type=env,target=AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET
+Environment=TZ=America/New_York
+Network=host
+
+[Service]
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

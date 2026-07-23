@@ -1,0 +1,17 @@
+[Unit]
+Description=Valkey Session Store
+After=network-online.target
+
+[Container]
+ContainerName=valkey
+Image=docker.io/valkey/valkey:8
+Volume=%h/srv/valkey/data:/data:Z
+Environment=TZ=America/New_York
+Network=host
+
+[Service]
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

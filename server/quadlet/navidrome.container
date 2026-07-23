@@ -11,6 +11,8 @@ SecurityLabelDisable=true
 Environment=TZ=America/New_York
 Environment=ND_LOGLEVEL=info
 Environment=ND_PORT=4533
+Environment=ND_REVERSEPROXYWHITELIST=127.0.0.1/32
+Environment=ND_REVERSEPROXYUSERHEADER=Remote-User
 Network=host
 
 [Service]

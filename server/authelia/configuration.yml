@@ -1,0 +1,69 @@
+---
+theme: dark
+
+server:
+  address: tcp://0.0.0.0:9091
+
+log:
+  level: info
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+
+session:
+  cookies:
+    - name: authelia_session
+      domain: home.thebrocks.net
+      authelia_url: https://auth.home.thebrocks.net
+      expiration: 12h
+      inactivity: 2h
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+storage:
+  postgres:
+    address: tcp://127.0.0.1:5432
+    database: authelia
+    username: authelia
+
+notifier:
+  disable_startup_check: true
+  filesystem:
+    filename: /config/notification.txt
+
+access_control:
+  default_policy: one_factor
+
+identity_providers:
+  oidc:
+    jwks:
+      - key_id: default
+        algorithm: RS256
+        use: sig
+        key_file: /config/oidc.key
+    clients:
+      - client_id: jellyfin
+        client_name: Jellyfin
+        client_secret: "REPLACE_WITH_HASHED_JELLYFIN_SECRET"
+        authorization_policy: one_factor
+        redirect_uris:
+          - https://movies.home.thebrocks.net/sso/OID/redirect
+        scopes:
+          - openid
+          - profile
+          - groups
+        userinfo_signed_response_alg: none
+
+      - client_id: immich
+        client_name: Immich
+        client_secret: "REPLACE_WITH_HASHED_IMMICH_SECRET"
+        authorization_policy: one_factor
+        redirect_uris:
+          - https://photos.home.thebrocks.net/auth/login
+        scopes:
+          - openid
+          - profile
+          - email
+        userinfo_signed_response_alg: none

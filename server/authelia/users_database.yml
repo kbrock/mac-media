@@ -1,0 +1,26 @@
+---
+users:
+  kbrock:
+    displayname: Keenan
+    password: "REPLACE_WITH_HASHED_PASSWORD"
+    email: keenan@thebrocks.net
+    groups:
+      - admins
+
+  vbrock:
+    displayname: Valerie
+    password: "REPLACE_WITH_HASHED_PASSWORD"
+    email: ""
+    groups: []
+
+  tbrock:
+    displayname: Toby
+    password: "REPLACE_WITH_HASHED_PASSWORD"
+    email: ""
+    groups: []
+
+  rbrock:
+    displayname: Reid
+    password: "REPLACE_WITH_HASHED_PASSWORD"
+    email: ""
+    groups: []
