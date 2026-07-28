@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Run once on mac-media after deploying quadlet files and starting postgres.
-# Prerequisites: postgres container running, ~/srv/authelia/configuration.yml deployed.
+# Run once on mac-media after deploying quadlet files.
+# Prerequisites: ~/srv/authelia/configuration.yml deployed, data dirs created.
 set -euo pipefail
 
 AUTHELIA_DIR="$HOME/srv/authelia"
@@ -33,13 +33,6 @@ hash_argon2() {
 # ── Prerequisites ────────────────────────────────────────────────────────────
 
 [ -f "$CONFIG" ] || die "configuration.yml not found at $CONFIG — deploy it first"
-
-podman ps --format '{{.Names}}' | grep -q '^postgres$' \
-  || die "postgres container not running — start it first: systemctl --user start postgres"
-
-until podman exec postgres pg_isready -U postgres &>/dev/null; do
-  echo "  waiting for postgres..."; sleep 2
-done
 
 # ── 1. Service secrets ───────────────────────────────────────────────────────
 
@@ -82,18 +75,23 @@ echo "==> OIDC client secrets"
 echo "    Save the plaintext values to 1Password before continuing."
 echo ""
 
+secrets_file="$AUTHELIA_DIR/oidc-client-secrets.txt"
+[ -f "$secrets_file" ] || touch "$secrets_file" && chmod 600 "$secrets_file"
+
 for client in jellyfin immich; do
   placeholder="REPLACE_WITH_HASHED_$(echo "$client" | tr '[:lower:]' '[:upper:]')_SECRET"
   if grep -q "$placeholder" "$CONFIG" 2>/dev/null; then
     plaintext=$(openssl rand -hex 32)
-    echo "  $client plaintext (save to 1Password): $plaintext"
     hash=$(hash_pbkdf2 "$plaintext")
     sed -i "s|\"$placeholder\"|\"$hash\"|" "$CONFIG"
+    echo "$client: $plaintext" >> "$secrets_file"
     echo "  $client: patched into configuration.yml"
   else
     echo "  $client: already configured"
   fi
 done
+
+echo "  plaintext secrets saved to $secrets_file (delete after configuring apps)"
 
 # ── 4. User passwords ────────────────────────────────────────────────────────
 
@@ -133,6 +131,17 @@ echo "  users_database.yml written"
 echo ""
 echo "==> Postgres database"
 
+if ! podman ps --format '{{.Names}}' | grep -q '^postgres$'; then
+  echo "  starting postgres..."
+  systemctl --user start postgres
+fi
+
+deadline=$(( $(date +%s) + 60 ))
+until podman exec postgres pg_isready -U postgres &>/dev/null; do
+  (( $(date +%s) < deadline )) || die "postgres did not become ready within 60s"
+  echo "  waiting for postgres..."; sleep 2
+done
+
 if podman exec postgres psql -U postgres -tc \
     "SELECT 1 FROM pg_roles WHERE rolname='authelia'" | grep -q 1; then
   echo "  authelia user: already exists"
@@ -150,8 +159,20 @@ SQL
   echo "  authelia user and database: created"
 fi
 
-# ── Done ─────────────────────────────────────────────────────────────────────
+# ── 6. Start remaining services ──────────────────────────────────────────────
 
 echo ""
-echo "==> Init complete. Start remaining services:"
-echo "    systemctl --user start valkey authelia"
+echo "==> Starting valkey and authelia"
+systemctl --user start valkey authelia
+
+# ── 7. Deploy nginx ───────────────────────────────────────────────────────────
+
+echo ""
+echo "==> Deploying nginx config"
+sudo cp ~/authelia-forward-auth.conf /etc/nginx/
+sudo cp ~/home.conf /etc/nginx/conf.d/
+sudo nginx -t && sudo systemctl reload nginx
+echo "  nginx reloaded"
+
+echo ""
+echo "==> Done. Verify at https://auth.home.thebrocks.net"

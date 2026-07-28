@@ -36,34 +36,4 @@ notifier:
 access_control:
   default_policy: one_factor
 
-identity_providers:
-  oidc:
-    jwks:
-      - key_id: default
-        algorithm: RS256
-        use: sig
-        key_file: /config/oidc.key
-    clients:
-      - client_id: jellyfin
-        client_name: Jellyfin
-        client_secret: "REPLACE_WITH_HASHED_JELLYFIN_SECRET"
-        authorization_policy: one_factor
-        redirect_uris:
-          - https://movies.home.thebrocks.net/sso/OID/redirect
-        scopes:
-          - openid
-          - profile
-          - groups
-        userinfo_signed_response_alg: none
-
-      - client_id: immich
-        client_name: Immich
-        client_secret: "REPLACE_WITH_HASHED_IMMICH_SECRET"
-        authorization_policy: one_factor
-        redirect_uris:
-          - https://photos.home.thebrocks.net/auth/login
-        scopes:
-          - openid
-          - profile
-          - email
-        userinfo_signed_response_alg: none
+# identity_providers: oidc — added in Phase 4 (Jellyfin) and Phase 5 (Immich)

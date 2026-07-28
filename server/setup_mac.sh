@@ -113,6 +113,7 @@ if section base-packages; then
     certbot python3-certbot-dns-cloudflare
 
   systemctl is-enabled cockpit.socket &>/dev/null || sudo systemctl enable --now cockpit.socket
+  systemctl is-enabled systemd-timesyncd &>/dev/null || sudo systemctl enable --now systemd-timesyncd
 fi
 
 ############################################################################
@@ -279,4 +280,35 @@ if section containers; then
   echo "  mkdir -p ~/srv/{landing,jellyfin/{config,cache},homeassistant/config,navidrome/data}"
   echo "  systemctl --user daemon-reload"
   echo "  systemctl --user enable --now homeassistant jellyfin landing navidrome"
+fi
+
+############################################################################
+# 8. HOME ASSISTANT — trusted_networks UUID
+############################################################################
+# Run after HA is up and kbrock user has been created via the HA UI.
+# Looks up kbrock's UUID and patches it into configuration.yaml, then
+# restarts HA.
+if section ha-trusted-networks; then
+  HA_AUTH=~/srv/homeassistant/config/.storage/auth
+  HA_CONFIG=~/srv/homeassistant/config/configuration.yaml
+
+  [ -f "$HA_AUTH" ] || { echo "HA auth storage not found — is HA running and kbrock created?"; exit 1; }
+
+  UUID=$(python3 -c "
+import json, sys
+data = json.load(open('$HA_AUTH'))
+users = [u for u in data['data']['users'] if u.get('name') == 'Keenan Brock']
+print(users[0]['id']) if users else sys.exit(1)
+" 2>/dev/null) || { echo "kbrock user not found in HA — create the account via HA UI first"; exit 1; }
+
+  echo "kbrock UUID: $UUID"
+
+  if grep -q "$UUID" "$HA_CONFIG"; then
+    echo "configuration.yaml: already patched"
+  else
+    sed -i "s|trusted_users:|trusted_users:|;/trusted_users:/,/allow_bypass/s|127.0.0.1:.*|127.0.0.1: $UUID|" "$HA_CONFIG"
+    echo "configuration.yaml: patched"
+    systemctl --user restart homeassistant
+    echo "homeassistant: restarted"
+  fi
 fi

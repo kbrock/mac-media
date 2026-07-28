@@ -21,10 +21,8 @@ quadlets:
 	@echo "  ssh $(REMOTE) 'systemctl --user restart jellyfin'"
 
 nginx:
-	rsync -av server/nginx/ $(REMOTE):nginx-staging/
-	ssh -t $(REMOTE) 'sudo cp ~/nginx-staging/nginx.conf /etc/nginx/nginx.conf && \
-	               sudo cp ~/nginx-staging/home.conf /etc/nginx/conf.d/home.conf && \
-	               sudo rm -f /etc/nginx/conf.d/mac-media.conf && \
+	rsync -av --delete server/nginx/ $(REMOTE):nginx-staging/
+	ssh -t $(REMOTE) 'sudo cp -r ~/nginx-staging/. /etc/nginx/ && \
 	               sudo nginx -t && sudo systemctl reload nginx'
 
 diff:
@@ -33,4 +31,4 @@ diff:
 	@echo "=== quadlets ==="
 	-rsync -avn server/quadlet/ $(REMOTE):.config/containers/systemd/
 	@echo "=== nginx ==="
-	-rsync -avn server/nginx/ $(REMOTE):nginx-staging/
+	-rsync -avn --delete server/nginx/ $(REMOTE):nginx-staging/
