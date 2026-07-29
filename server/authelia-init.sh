@@ -78,16 +78,20 @@ echo ""
 secrets_file="$AUTHELIA_DIR/oidc-client-secrets.txt"
 [ -f "$secrets_file" ] || touch "$secrets_file" && chmod 600 "$secrets_file"
 
+# configuration.yml references each client's hash via
+# {{ secret "/config/<client>-client-secret.hash" | msquote }} — this script
+# owns generating that file, nothing to hand-write.
 for client in jellyfin immich; do
-  placeholder="REPLACE_WITH_HASHED_$(echo "$client" | tr '[:lower:]' '[:upper:]')_SECRET"
-  if grep -q "$placeholder" "$CONFIG" 2>/dev/null; then
+  hash_file="$AUTHELIA_DIR/$client-client-secret.hash"
+  if [ -f "$hash_file" ]; then
+    echo "  $client: $hash_file already exists, skipping"
+  else
     plaintext=$(openssl rand -hex 32)
     hash=$(hash_pbkdf2 "$plaintext")
-    sed -i "s|\"$placeholder\"|\"$hash\"|" "$CONFIG"
+    printf '%s' "$hash" > "$hash_file"
+    chmod 600 "$hash_file"
     echo "$client: $plaintext" >> "$secrets_file"
-    echo "  $client: patched into configuration.yml"
-  else
-    echo "  $client: already configured"
+    echo "  $client: $hash_file written"
   fi
 done
 

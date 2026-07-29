@@ -10,8 +10,9 @@ Secret=authelia_jwt_secret,type=env,target=AUTHELIA_JWT_SECRET
 Secret=authelia_session_secret,type=env,target=AUTHELIA_SESSION_SECRET
 Secret=authelia_storage_encryption_key,type=env,target=AUTHELIA_STORAGE_ENCRYPTION_KEY
 Secret=authelia_storage_postgres_password,type=env,target=AUTHELIA_STORAGE_POSTGRES_PASSWORD
-# authelia_oidc_hmac_secret — re-enable in Phase 4 when wiring OIDC
+Secret=authelia_oidc_hmac_secret,type=env,target=AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET
 Environment=TZ=America/New_York
+Environment=X_AUTHELIA_CONFIG_FILTERS=template
 Network=host
 
 [Service]
