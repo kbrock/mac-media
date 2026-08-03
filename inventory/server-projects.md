@@ -52,6 +52,10 @@ Custom Sections dashboard, halfway done.
 - Emporia plugs x4
 - Govee H6066 (no LAN; firmware update or skip)
 - VocoLinc SmartBar (HomeKit-native, locations unknown)
+- VW Group Connect — HACS custom repo `its-me-prash/vwgroup-connect-ha`. Only
+  supports EU Brand ID accounts (VW EU, Audi, Škoda, SEAT/CUPRA, Porsche); US
+  Volkswagen uses a separate Car-Net backend this integration doesn't support.
+  Check for a US-compatible alternative before proceeding.
 
 
 ## Vault
