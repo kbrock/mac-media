@@ -71,25 +71,9 @@ Fresh install, no network yet. Type the commands from `setup_ethernet.sh`
 at the Mac mini's console. Once ethernet is up, run `make setup` from your
 laptop to push the repo.
 
-## DNS (UDM, manual via UniFi Network UI)
+## DNS
 
-UDM (`fortknox`, 192.168.1.1) serves local DNS for `*.home.thebrocks.net`.
-
-1. Settings → Networks → Your LAN → set **Domain Name** = `home.thebrocks.net`
-   (DHCP-pushed search suffix; lets clients resolve `hub` as `hub.home.thebrocks.net`).
-2. Settings → Policy Engine → DNS → Static DNS Entries → Create:
-
-   | Type | Hostname               | Value           |
-   |------|------------------------|-----------------|
-   | A    | `mac-media`            | 192.168.1.246   |
-   | A    | `*.home.thebrocks.net` | 192.168.1.246   |
-
-3. Verify from a LAN device:
-   ```
-   dig @192.168.1.1 anything.home.thebrocks.net
-   ```
-   Returns `192.168.1.246`.
-
+Network-side setup (UDM/fortknox) — see `network.md` § DNS plan.
 
 ## Deploy Home Assistant
 

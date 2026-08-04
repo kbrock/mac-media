@@ -37,13 +37,27 @@ Pricing (Micro Center): UCG-Max + U6+ together ~$360. UK-Ultra ~$89.
 - Levitron patch panel: wires too short, cleanup pending.
 - 3 telephone wires at patch panel: 1 fax (unused), 1 house phone, 1 unknown.
 
-## DNS plan (in progress)
+## DNS plan
 
 - Local DNS served by UDM (`fortknox`, 192.168.1.1).
 - DHCP-pushed search domain: `home.thebrocks.net`.
-- Static DNS: wildcard `*.home.thebrocks.net` → mac-media (192.168.1.246).
-- Plus bare `mac-media` → 192.168.1.246.
+- **No wildcard DNS record.** Explicit A records only:
+  `{hub,movies,music,photos,auth,mac-media}.home.thebrocks.net` → mac-media
+  (192.168.1.246), plus `fortknox.home.thebrocks.net` → itself (192.168.1.1).
 - Public DNS at Cloudflare hosts only ACME TXT records (transient).
+
+Wildcard DNS was tried but all unknown domains redirected to mac-media.
+
+### Setup (UDM, manual via UniFi Network UI)
+
+1. Settings → Networks → Your LAN → set **Domain Name** = `home.thebrocks.net`.
+2. Settings → Policy Engine → DNS → Static DNS Entries → Create one A record
+   per entry above.
+3. Verify from a LAN device:
+   ```
+   dig @192.168.1.1 hub.home.thebrocks.net
+   ```
+   Returns `192.168.1.246`.
 
 ### Goal: no public records for internal services
 
