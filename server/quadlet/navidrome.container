@@ -1,10 +1,13 @@
 [Unit]
 Description=Navidrome Music Server
 After=network-online.target mnt-nas-music.automount
+StartLimitIntervalSec=300
+StartLimitBurst=10
 
 [Container]
 ContainerName=navidrome
 Image=docker.io/deluan/navidrome:latest
+AutoUpdate=registry
 Volume=%h/srv/navidrome/data:/data:Z
 Volume=/mnt/nas/music:/music:ro
 SecurityLabelDisable=true

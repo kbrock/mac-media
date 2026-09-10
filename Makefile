@@ -1,7 +1,7 @@
 REMOTE := mac-media
 QUADLET_SERVICES := authelia jellyfin navidrome homeassistant postgres valkey
 
-.PHONY: all setup creds landing quadlets nginx nas-mounts diff $(QUADLET_SERVICES)
+.PHONY: all setup creds landing quadlets nginx nas-mounts revive diff $(QUADLET_SERVICES)
 
 all: landing quadlets nginx
 
@@ -41,6 +41,13 @@ authelia:
 $(filter-out authelia,$(QUADLET_SERVICES)):
 	scp server/quadlet/$@.container $(REMOTE):.config/containers/systemd/
 	ssh $(REMOTE) 'systemctl --user daemon-reload && systemctl --user restart $@'
+
+# Quadlets carry StartLimitIntervalSec/StartLimitBurst — a service that
+# crash-loops past that limit goes `failed` and refuses stop/start until
+# reset-failed clears it. Finds every failed --user unit and revives it.
+revive:
+	ssh $(REMOTE) 'for u in $$(systemctl --user list-units --state=failed --no-legend --plain | awk "{print \$$1}"); do \
+	  echo "reviving $$u"; systemctl --user reset-failed $$u && systemctl --user restart $$u; done'
 
 diff:
 	@echo "=== landing ==="

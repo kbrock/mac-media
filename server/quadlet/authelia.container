@@ -1,10 +1,13 @@
 [Unit]
 Description=Authelia SSO Portal
 After=network-online.target postgres.service valkey.service
+StartLimitIntervalSec=300
+StartLimitBurst=10
 
 [Container]
 ContainerName=authelia
 Image=ghcr.io/authelia/authelia:latest
+AutoUpdate=registry
 Volume=%h/srv/authelia:/config:Z
 Secret=authelia_jwt_secret,type=env,target=AUTHELIA_JWT_SECRET
 Secret=authelia_session_secret,type=env,target=AUTHELIA_SESSION_SECRET
