@@ -27,7 +27,7 @@ see [storage.md](storage.md). For media hardware (TV, Roku, soundbar) see
 | Device                    | Integration       | Status      |
 |---------------------------|-------------------|-------------|
 | iRobot Roomba j9+ (Wall-E)| Local MQTT        | Done. j-series blocks local password retrieval; get it via `dorita980 getPasswordCloud` |
-| Govee lights x2           | LAN (HACS)        | Done        |
+| Govee lights x2           | LAN (built-in, multicast discovery) | -           |
 | Govee H6066               | No LAN            | Skip        |
 | Number bed                | -                 | Done        |
 | Wallbox Pulsar Plus       | -                 | Done. 2/2021, type 4 enclosure, 50A |
