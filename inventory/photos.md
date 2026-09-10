@@ -1,76 +1,85 @@
 # Photo Library Inventory
 
-Snapshot taken 2026-05-03.
+## Sources — NAS `/volume1/Photos/Pictures/`
 
-## NAS `/Volumes/Music/Pictures/`
+| Library                          | Type             | Masters | Total files | Size  | Modified         |
+|----------------------------------|------------------|---------|-------------|-------|------------------|
+| iPhoto Library.photolibrary      | iPhoto bundle    | 2,318   | 22,817      | 8.6G  | 2018-04-21       |
+| Merged.photolibrary              | iPhoto bundle    | 11,050  | 67,085      | 21G   | 2024-02-09       |
+| Photos Library-rh.photoslibrary  | Photos bundle    | 2,168   | 24,050      | 8.7G  | 2018-04-21       |
+| photos/                          | exploded iPhoto  | 12,689  | 107,165     | 33G   | 2018-04-21       |
+| photos-1/                        | exploded iPhoto  | 12,251  | 95,413      | 31G   | 2018-07-11       |
+| nanny_photos/                    | flat folder      | 259     | 259         | 78M   | 2018-04-21       |
+| pics/                            | flat folder      | 44      | 48          | 257M  | 2023-04-05       |
+| Summer2014/                      | flat folder      | 18      | 18          | 38M   | 2018-04-21       |
+| Photos Library (from-mac zip)    | Photos bundle    | ~53k    | ~53k        | 46G   | up to 2022-11    |
 
-| Library                          | Type        | Masters | Originals | Total files | Size | Modified            |
-|----------------------------------|-------------|---------|-----------|-------------|------|---------------------|
-| iPhoto Library.photolibrary      | iPhoto pkg  | 2,318   | 0         | 22,817      | 8.6G | 2018-04-21 14:40    |
-| Merged.photolibrary              | iPhoto pkg  | 11,050  | 0         | 67,085      | 20G  | 2024-02-09 13:31    |
+`photos/` and `photos-1/` are exploded iPhoto libraries — have `AlbumData.xml`, `Database/`, `Attachments/` but no `.photolibrary` wrapper. Originals under `Masters/YYYY/MM/DD/UUID/`.
 
-| Folder              | Image files | Masters subfolder | Total files | Size  | Modified            |
-|---------------------|-------------|-------------------|-------------|-------|---------------------|
-| nanny_photos/       | 259         | 0                 | 259         | 60M   | 2018-04-21 12:31    |
-| photos/             | 49,453      | 12,689            | 107,165     | 33G   | 2018-04-21 18:00    |
-| photos-1/           | 45,887      | 12,251            | 95,413      | 31G   | 2018-07-11 12:17    |
-| pics/               | 44          | 0                 | 48          | 255M  | 2023-04-05 19:51    |
-| Summer2014/         | 18          | 0                 | 18          | 38M   | 2018-04-21 12:34    |
-
-`photos/` and `photos-1/` are exploded iPhoto libraries (have AlbumData.xml,
-Database/, Attachments/ - just no .photolibrary wrapper).
-
-## LaCie copy at `~/Downloads/sort_through_these/dad_rh/Pictures/`
-
-| Library                            | Type        | Masters | Originals | Total files | Size  | Modified            |
-|------------------------------------|-------------|---------|-----------|-------------|-------|---------------------|
-| Merged.photolibrary                | iPhoto pkg  | **0**   | 0         | 44,964      | 11G   | 2018-04-21 20:46    |
-| Photos Library-rh.photoslibrary    | iPhoto pkg  | 2,168   | 0         | 24,050      | 8.5G  | 2018-04-21 20:26    |
+`Photos Library (from-mac zip)` came from a different laptop. Unzipped to NAS July 2026. Also contains loose JPGs (2019-2022) and a Photo Booth Library.
 
 ## BigBadWolf
 
 Already unplugged. No photo libraries inventoried.
 
-## Mac Studio (current)
+## Mac Studio
 
-Photos library on Mac Studio: not inventoried in this snapshot. User reports "only 123 iCloud photos locally."
+Only 123 iCloud photos locally. Not a meaningful source.
 
 ## Diagnosis
 
-**LaCie's `Merged.photolibrary` is broken.** 0 masters and 0 originals - only thumbnails and database. The photos that *should* be inside are stored elsewhere (referenced library, or were extracted into a non-library folder).
+`Merged.photolibrary` (Feb 2024) is the most recent and likely a prior consolidation attempt — 11,050 masters absorbed from multiple sources.
 
-**LaCie's `Photos Library-rh.photoslibrary`** has 2,168 masters. NAS's `iPhoto Library.photolibrary` has 2,318 masters - 150 more. Could be related (same ancestor) but NAS version is more complete.
+`photos/` and `photos-1/` hold the bulk of historical data (24,940 masters combined). Likely where content from older libraries ended up when libraries were exploded.
 
-**NAS `Merged.photolibrary` (Feb 2024)** is much newer than the LaCie copies (April 2018). Likely a consolidation built from various sources after the LaCie copies were made. 11,050 masters suggests it absorbed content from multiple libraries.
+`Photos Library-rh.photoslibrary` and `iPhoto Library.photolibrary` appear related (same ancestor). NAS version has 150 more masters — more complete.
 
-**NAS `photos/` and `photos-1/` total 24,940 image files in Masters folders.** These exploded libraries hold most of the historical photo data. Likely where the LaCie's broken Merged photos ended up.
+Libraries were seeded from each other over the years (laptop-to-laptop copies), so UUID overlap across libraries is expected to be high.
 
-## Conservative recommendation
+Many photos — especially 1970s family photos — have manually corrected dates in iPhoto/Photos. These corrections live only in the SQLite databases, not in the files' EXIF.
 
-**Don't delete anything yet.** Don't copy LaCie to NAS yet. Verify first.
+## Plan
 
-Verification options ranked by effort:
+**Assumptions:** image edits (crops, adjustments) not worth preserving. Originals only. No Photos.app export needed — extract directly from bundles.
 
-### Easy (10 minutes)
-- `diff <(find LaCie/Merged.photolibrary -name "*.xml" -printf "%f\n" | sort) <(find NAS/Merged.photolibrary -name "*.xml" | sort)` — see if database structures match
-- Check `AlbumData.xml` dates on each library to find the lineage
-- Open NAS Merged in Photos.app on Mac (read-only mount), see if photo count matches expectation
+### 1 — Strip thumbnails and caches
 
-### Medium (1 hour)
-- For LaCie's Photos Library-rh, sample 10 random Master filenames, see if they exist in NAS iPhoto Library Masters
-- If they do, LaCie is a subset/older version, safe to ignore
-- If they don't, LaCie has unique content worth migrating
+Library bundles carry significant non-photo bulk. Safe to delete per bundle before any other work:
+- `Thumbnails/`
+- `resources/derivatives/`
+- `scopes/`
+- `resources/caches/`
 
-### Thorough (half day)
-- Full hash comparison of all Master files across all NAS libraries vs LaCie libraries
-- Output: definitive list of any photo on LaCie not present anywhere on NAS
+Keep: `Originals/` or `Masters/`, `database/` (needed for step 2).
 
-### Best long-term path
+### 2 — UUID dedup
 
-Don't try to merge libraries manually. Instead:
-1. Install Immich on mac-media (planned project)
-2. Point Immich at all 4-5 photo locations as separate import jobs
-3. Immich deduplicates by file hash automatically
-4. End state: one Immich library, all unique photos preserved, original libraries can be archived/deleted
+UUID comparison across all libraries identifies duplicates without touching files — same UUID = same photo, keep one copy. Ruby script walks all libraries, builds UUID set, copies unique originals to a staging folder.
 
-This avoids the manual merge work entirely. The original libraries remain on NAS as cold backup until Immich is proven working.
+- Photos bundles: `originals/X/UUID.ext`
+- iPhoto bundles and exploded: `Masters/YYYY/MM/DD/UUID/filename.jpg`
+
+Must run before step 3 — baking dates changes file hashes, so dedup must happen first.
+
+### 3 — Bake date corrections from SQLite
+
+Script reads each library DB, builds `UUID -> corrected_date` map, exports CSV.
+Second script on Mac reads CSV and writes corrected dates into EXIF via `exiftool`.
+
+- iPhoto: `Library.apdb` -> `RKVersion.imageDate` keyed by `masterUuid`
+- Photos: `Photos.sqlite` -> `ZASSET.ZDATECREATED` (Core Data timestamp: seconds since 2001-01-01)
+
+Run against the deduped staging folder only, not the originals.
+`exiftool` not available on Synology — must run on Mac with Photos share mounted.
+
+Unblocked by: Photos share mounted on mac-media.
+
+### 4 — Immich import
+
+Import staging folder into Immich. UUID dedup in step 2 already handled duplicates — hash dedup not relied on.
+
+mac-media has no GPU. Immich ML features (face recognition, CLIP search) need to reach out to Mac Studio over the local network for inference.
+
+### Hold
+
+Don't delete original libraries until Immich import is verified complete.
