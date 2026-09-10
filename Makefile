@@ -1,7 +1,7 @@
 REMOTE := mac-media
 QUADLET_SERVICES := authelia jellyfin navidrome homeassistant postgres valkey
 
-.PHONY: all setup creds landing quadlets nginx diff $(QUADLET_SERVICES)
+.PHONY: all setup creds landing quadlets nginx nas-mounts diff $(QUADLET_SERVICES)
 
 all: landing quadlets nginx
 
@@ -23,6 +23,12 @@ nginx:
 	rsync -av --delete server/nginx/ $(REMOTE):nginx-staging/
 	ssh -t $(REMOTE) 'sudo cp -r ~/nginx-staging/. /etc/nginx/ && \
 	               sudo nginx -t && sudo systemctl reload nginx'
+
+nas-mounts:
+	rsync -av server/nas-mounts/ $(REMOTE):nas-mounts-staging/
+	ssh -t $(REMOTE) 'sudo cp nas-mounts-staging/*.mount nas-mounts-staging/*.automount /etc/systemd/system/ && \
+	               sudo systemctl daemon-reload && \
+	               sudo systemctl restart mnt-nas-music.mount mnt-nas-video.mount'
 
 # Per-service: scp that service's quadlet (+ any service-specific config it
 # has) and restart it. quadlets above is the bulk equivalent — syncs every
