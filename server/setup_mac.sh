@@ -310,3 +310,48 @@ print(users[0]['id']) if users else sys.exit(1)
     echo "homeassistant: restarted"
   fi
 fi
+
+############################################################################
+# 9. DUMBHOME VLAN (IoT network sub-interface)
+############################################################################
+# Requires UniFi switch port for mac-media already set to trunk BHome +
+# DumbHome (see mac-media-setup.md). Cloned MAC gives this interface its
+# own UniFi client identity — see network-decisions.md.
+if section dumbhome-vlan; then
+  if nmcli -t -f NAME connection show | grep -qx dumbhome; then
+    echo "dumbhome connection: already exists"
+  else
+    sudo nmcli connection add type vlan ifname enp1s0f0.2 dev enp1s0f0 id 2 \
+      con-name dumbhome ipv4.method auto ipv6.method auto autoconnect yes \
+      ethernet.cloned-mac-address a8:20:66:31:da:ff
+  fi
+
+  if nmcli -t -f NAME,STATE connection show --active | grep -qx "dumbhome:activated"; then
+    echo "dumbhome connection: already active"
+  else
+    sudo nmcli connection up dumbhome
+  fi
+fi
+
+############################################################################
+# 10. HOME ASSISTANT — pin network adapter to DumbHome
+############################################################################
+# Settings -> System -> Network in the UI is read-only once external_url
+# is set in configuration.yaml, so this patches core.network directly.
+if section ha-dumbhome-adapter; then
+  F=~/srv/homeassistant/config/.storage/core.network
+  if grep -q "enp1s0f0.2" "$F" 2>/dev/null; then
+    echo "core.network: already pinned to enp1s0f0.2"
+  else
+    systemctl --user stop homeassistant
+    cp "$F" "$F.bak-$(date +%Y%m%d%H%M%S)"
+    python3 -c "
+import json
+d = json.load(open('$F'))
+d['data']['configured_adapters'] = ['enp1s0f0.2']
+json.dump(d, open('$F', 'w'))
+"
+    systemctl --user start homeassistant
+    echo "core.network: pinned to enp1s0f0.2, homeassistant restarted"
+  fi
+fi
