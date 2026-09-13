@@ -25,6 +25,7 @@ end
 def normalize_file(name)
   ext = File.extname(name).downcase
   base = AUDIO.include?(ext) ? File.basename(name, File.extname(name)) : name
+  base = base.gsub(/\s*[\[(]live[\])]/i, "")
   normalize(base)
 end
 
