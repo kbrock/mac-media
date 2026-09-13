@@ -10,6 +10,9 @@ systemd won. These tools are the same everywhere now.
 | Show IP addresses       | `ifconfig`                   | `ip a`                             |
 | Show one interface      | `ifconfig eth0`              | `ip a show enp1s0f0`              |
 | Bring interface up      | `ifup eth0`                  | `nmcli con up enp1s0f0`           |
+| Bring interface down    | `ifdown eth0`                | `nmcli con down enp1s0f0`         |
+| Bring up a VLAN sub-if  | `ifup eth0.2`                | `nmcli con up dumbhome`           |
+| List connections + status |                            | `nmcli con show`                  |
 | Wifi networks           |                              | `nmcli device wifi list`           |
 | Connection status       |                              | `nmcli device status`              |
 | DNS lookup              | `nslookup`                   | `dig` or `resolvectl query`        |
@@ -19,6 +22,12 @@ systemd won. These tools are the same everywhere now.
 | Wifi radio on/off       |                              | `nmcli radio wifi off`             |
 | Radio status            |                              | `rfkill list`                      |
 | Block radio             |                              | `rfkill block wifi` / `bluetooth`  |
+
+Note: `nmcli con up/down` takes a *connection profile* name, not a
+device name — often the same (`enp1s0f0`) but not always: a VLAN
+sub-interface (device `enp1s0f0.2`) can have any connection name, e.g.
+`dumbhome`. `nmcli con show` lists profiles with their device and
+up/down (`connected`/`disconnected`) state; `ip a` lists actual devices.
 
 ### Linux vs Mac
 
