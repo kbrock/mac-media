@@ -141,10 +141,15 @@ basement → attic → 2nd floor, and because the attic's temperature swings
   auto-scale back on. This forces UniFi to drop the stale lease/cache.
   Reconnect the device and it picks up a correct IP in the new range.
 
-### Govee cross-VLAN discovery — in progress
+### Govee: native LAN discovery
 
-See [govee-migration.md](../govee-migration.md) (repo root, not committed)
-for current findings, port breakdown, and next steps.
+Built-in Govee Light Local integration.
+
+### Dual-homed host on two VLANs (mac-media)
+
+HA network discovery is pinned to the DumbHome interface (second
+interface on mac-media, DumbHome VLAN, set up in `setup_mac.sh`), not
+the default adapter.
 
 ## Current RF Configuration
 
@@ -251,3 +256,4 @@ remembers. Safari and Firefox usually resolve directly.
 
 - **Local NTP server** — capture all NTP traffic and route to our own server.
   Reduces IoT chatter, more control over time sync.
+- **Find uses for Emporia smart plugs (x4)** — currently unused.
