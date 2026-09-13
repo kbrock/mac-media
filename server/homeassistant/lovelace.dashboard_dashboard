@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.dashboard_dashboard",
+  "data": {
+    "config": {
+      "views": [
+        {
+          "type": "sections",
+          "sections": [
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading": "Bed",
+                  "heading_style": "title",
+                  "icon": "mdi:bed"
+                },
+                {
+                  "show_name": false,
+                  "show_icon": true,
+                  "type": "button",
+                  "entity": "select.the_bed_sleepnumber_the_bed_keenan_foot_warmer",
+                  "show_state": true
+                },
+                {
+                  "graph": "line",
+                  "type": "sensor",
+                  "entity": "sensor.the_bed_sleepnumber_the_bed_keenan_sleep_score",
+                  "detail": 1
+                },
+                {
+                  "show_name": false,
+                  "show_icon": true,
+                  "type": "button",
+                  "entity": "select.the_bed_sleepnumber_the_bed_valerie_foot_warmer",
+                  "show_state": true
+                },
+                {
+                  "graph": "line",
+                  "type": "sensor",
+                  "entity": "sensor.the_bed_sleepnumber_the_bed_valerie_sleep_score",
+                  "detail": 1
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading_style": "title",
+                  "heading": "Lights"
+                },
+                {
+                  "type": "light",
+                  "entity": "light.h6072",
+                  "grid_options": {
+                    "columns": 6,
+                    "rows": 3
+                  },
+                  "hold_action": {
+                    "action": "none"
+                  }
+                },
+                {
+                  "type": "light",
+                  "entity": "light.h6066",
+                  "grid_options": {
+                    "columns": 6,
+                    "rows": 3
+                  },
+                  "hold_action": {
+                    "action": "none"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading_style": "title",
+                  "heading": "Car",
+                  "icon": "mdi:ev-station"
+                },
+                {
+                  "type": "tile",
+                  "entity": "sensor.wallbox_pulsar_plus_us_sn_99053_status_description",
+                  "grid_options": {
+                    "columns": 6,
+                    "rows": 2
+                  }
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading": "New section"
+                },
+                {
+                  "show_name": true,
+                  "show_icon": true,
+                  "type": "button",
+                  "entity": "vacuum.wall_e",
+                  "show_state": false
+                },
+                {
+                  "type": "tile",
+                  "entity": "climate.main_floor"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

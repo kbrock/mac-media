@@ -89,7 +89,7 @@ HA quadlet uses `Network=host` for mDNS device discovery. Currently the
 home-automation hub by default — if HA grows its own bucket someday, move
 the device state and integration notes out. For now, HA is a mac-media
 service; HA devices live in `hardware.md`; HA integration status lives in
-`server-projects.md` backlog.
+`home_assistant.md`.
 
 ## Deploys (laptop → mac-media)
 

@@ -64,6 +64,9 @@ rfkill unblock bluetooth
 
 - Interface: `enp1s0f0` (ethernet)
 - Static IP: reserve via Unifi DHCP (Clients > mac-media > Fixed IP)
+- DumbHome VLAN trunk: switch port for mac-media (USW Lite 16) — Native
+  VLAN: Default (BHome), Tagged VLAN Management: Custom, select
+  DumbHome. Prerequisite for `setup_mac.sh`'s `dumbhome-vlan` section.
 
 ### First-console bootstrap
 
@@ -75,77 +78,10 @@ laptop to push the repo.
 
 Network-side setup (UDM/fortknox) — see `network.md` § DNS plan.
 
-## Deploy Home Assistant
+## Home Assistant
 
-```bash
-# create directories on server
-ssh mac-media 'mkdir -p ~/ha-config ~/.config/containers/systemd'
-
-# copy quadlet file (rootless = user's systemd directory)
-scp quadlet/homeassistant.container mac-media:~/.config/containers/systemd/
-
-# start it
-ssh mac-media 'systemctl --user daemon-reload && systemctl --user start homeassistant'
-```
-
-## Open firewall
-
-```bash
-sudo firewall-cmd --permanent --add-port=8123/tcp
-sudo firewall-cmd --permanent --add-port=4001-4003/udp
-sudo firewall-cmd --reload
-```
-
-- 8123/tcp — Home Assistant web UI
-- 4001-4003/udp — Govee LAN light discovery
-
-## Install HACS (community integrations, optional)
-
-Not needed for built-in integrations. Required for community-only integrations.
-
-```bash
-podman exec -it homeassistant bash -c "wget -O - https://get.hacs.xyz | bash -"
-systemctl --user restart homeassistant
-```
-
-Then in HA: Settings > Integrations > Add > HACS. Requires a GitHub personal access token (no scopes needed).
-
-## Integrations
-
-- **Govee lights**: built-in "Govee lights local". Enable LAN control per light in the Govee app first.
-- **Ecobee 3**: integrated.
-- **Pulsar charger**: integrated.
-
-## Home Assistant — nginx reverse proxy config
-
-Edit `~/srv/homeassistant/config/configuration.yaml` on mac-media:
-
-```yaml
-homeassistant:
-  external_url: https://hub.home.thebrocks.net
-
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - 127.0.0.1
-
-homeassistant:
-  auth_providers:
-    - type: trusted_networks
-      trusted_networks:
-        - 127.0.0.1/32
-      trusted_users:
-        127.0.0.1: kbrock
-      allow_bypass_login: true
-    - type: homeassistant
-```
-
-Then restart: `systemctl --user restart homeassistant`
-
-Without `http:` block, HA returns 400 when accessed via nginx.
-The `trusted_networks` provider auto-logs in as kbrock when request arrives
-via nginx (127.0.0.1). The `homeassistant` provider kept as fallback for
-direct access. Added as part of Authelia SSO setup.
+Deploy steps, firewall ports, HACS install, integrations, and nginx reverse
+proxy config: see [`inventory/home_assistant.md`](../inventory/home_assistant.md).
 
 ## Jellyfin — SSO plugin
 

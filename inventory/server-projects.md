@@ -17,7 +17,7 @@ Shared infrastructure with Immich: Redis (session store) + Postgres (storage bac
 
 Per-service decisions:
 - **Jellyfin** — nginx forward auth + OIDC (SSO-Auth plugin, already installed)
-- **Home Assistant** — nginx forward auth + trusted_networks auto-login as admin for all users
+- **Home Assistant** — nginx forward auth + trusted_networks auto-login as admin for all users (see `inventory/home-assistant-decisions.md`)
 - **Navidrome** — nginx forward auth for browser; `/rest/` bypasses auth, username read from `$arg_u` query param (no password check, LAN-only acceptable). Amperfy uses username only.
 - **Immich** — nginx forward auth + OIDC native
 
@@ -38,25 +38,6 @@ Library on NAS. Postgres + Redis shared with Authelia.
 | AWS Glacier  | $1/mo + retrieval |
 
 Actions: sign up B2, configure Hyper Backup on DSM, document recovery.
-
-## Home Assistant dashboard
-
-Custom Sections dashboard, halfway done.
-
-- Add device sections (Wall-E, Govee lights, car charger, Emporia plugs)
-- Pick entities per device (skip noise)
-- History graph cards for bed temp / sleep metrics
-
-## Home Assistant integrations
-
-- Emporia plugs x4
-- Govee H6066 (no LAN; firmware update or skip)
-- VocoLinc SmartBar (HomeKit-native, locations unknown)
-- VW Group Connect — HACS custom repo `its-me-prash/vwgroup-connect-ha`. Only
-  supports EU Brand ID accounts (VW EU, Audi, Škoda, SEAT/CUPRA, Porsche); US
-  Volkswagen uses a separate Car-Net backend this integration doesn't support.
-  Check for a US-compatible alternative before proceeding.
-
 
 ## Vault
 
