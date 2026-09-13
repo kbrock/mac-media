@@ -26,6 +26,12 @@ The actual scripts live in [../server/](../server/).
 | cockpit       | RPM       | 9090 (admin UI) |
 | acme-sh       | system-mode quadlet, weekly timer | — (cron only) |
 
+**Only nginx (80/443), ssh, and cockpit are opened in firewalld.**
+jellyfin, navidrome, and homeassistant listen on the ports above but are
+reached only via nginx (`127.0.0.1` proxy_pass) — no direct LAN port is
+opened for them. Govee LAN light discovery additionally needs
+4001-4003/udp open (UDP broadcast, can't be proxied).
+
 **Two nginx are intentional.** The RPM nginx on 80/443 is the reverse
 proxy — terminates TLS, holds the cert, routes by `server_name`. The
 container nginx (`landing.container`) is the application server for the

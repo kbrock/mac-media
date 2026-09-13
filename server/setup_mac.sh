@@ -139,9 +139,7 @@ if section firewall; then
   add_svc mdns       # 5353/udp for HA device discovery
   add_port 80/tcp    "nginx http"
   add_port 443/tcp   "nginx https"
-  add_port 4533/tcp  "navidrome"
-  add_port 8096/tcp  "jellyfin"
-  add_port 8123/tcp  "home assistant"
+  add_port 4001-4003/udp "govee LAN discovery"
 
   sudo firewall-cmd --reload
 fi
