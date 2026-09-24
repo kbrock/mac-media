@@ -323,7 +323,18 @@ if section dumbhome-vlan; then
   else
     sudo nmcli connection add type vlan ifname enp1s0f0.2 dev enp1s0f0 id 2 \
       con-name dumbhome ipv4.method auto ipv6.method auto autoconnect yes \
-      ethernet.cloned-mac-address a8:20:66:31:da:ff
+      ethernet.cloned-mac-address a8:20:66:31:da:ff \
+      ipv4.dhcp-hostname mac-media2
+  fi
+
+  # Without a distinct DHCP hostname, this interface sends the system
+  # hostname (mac-media) same as the primary NIC, and UniFi's local DNS
+  # ends up serving the DumbHome IP for the bare "mac-media" name — see
+  # network-decisions.md.
+  if [ "$(nmcli -g ipv4.dhcp-hostname connection show dumbhome)" = "mac-media2" ]; then
+    echo "dumbhome dhcp-hostname: already mac-media2"
+  else
+    sudo nmcli connection modify dumbhome ipv4.dhcp-hostname mac-media2
   fi
 
   if nmcli -t -f NAME,STATE connection show --active | grep -qx "dumbhome:activated"; then

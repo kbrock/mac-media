@@ -32,6 +32,16 @@ For ESPHome/Shelly-style mDNS discovery — not Govee-style raw UDP —
 UniFi's built-in mDNS Proxy is correctly scoped for this, no DNAT
 needed.
 
+## DumbHome sub-interface gets its own DHCP hostname (mac-media2)
+
+Both mac-media NICs sent the same DHCP hostname (`mac-media`), so
+UniFi's local DNS served the DumbHome IP (`192.168.2.246`) for the bare
+`mac-media` lookup instead of the primary one (`192.168.1.246`) —
+`mac-media.home.thebrocks.net` (the static A record) was unaffected.
+Fixed by setting `ipv4.dhcp-hostname mac-media2` on the `dumbhome`
+connection, so the two interfaces register as distinct UniFi clients by
+name, not just by MAC.
+
 ## Dual-homed host VLAN sub-interfaces get a cloned MAC
 
 Real MAC on a second VLAN sub-interface collided with the host's
