@@ -19,7 +19,7 @@ The actual scripts live in [../server/](../server/).
 | Service       | How       | Listens on |
 |---------------|-----------|------------|
 | nginx (RPM)   | systemd   | 80, 443    |
-| landing (container nginx:alpine) | quadlet, user-mode | 8080 (host) → 80 (container) |
+| landing (Roda app, localhost/landing) | quadlet, user-mode | 8080 (host) → 8080 (container) |
 | jellyfin      | quadlet, user-mode, `Network=host` | 8096 |
 | navidrome     | quadlet, user-mode, `Network=host` | 4533 |
 | homeassistant | quadlet, user-mode, `Network=host` | 8123 |
@@ -34,8 +34,8 @@ opened for them. Govee LAN light discovery additionally needs
 
 **Two nginx are intentional.** The RPM nginx on 80/443 is the reverse
 proxy — terminates TLS, holds the cert, routes by `server_name`. The
-container nginx (`landing.container`) is the application server for the
-static landing page, isolated like every other app on the box. Keeping
+landing container (`landing.container`) is the application server for the
+Roda landing page, isolated like every other app on the box. Keeping
 proxy and app separate means the landing page is just another upstream,
 not a special case in the reverse proxy config. Don't consolidate.
 
@@ -103,7 +103,7 @@ service; HA devices live in `hardware.md`; HA integration status lives in
 |------|---------|-------------|
 | Repo bundle (no creds) | `make setup` | `mac-media:server/` |
 | Cloudflare cred | `make creds` | `mac-media:server/acme/cloudflare.env` |
-| Landing HTML | `make landing` | `mac-media:srv/landing/` |
+| Landing app | `make landing` | `mac-media:build/landing/` (image `localhost/landing`) |
 | User quadlets | `make quadlets` | `~/.config/containers/systemd/` + daemon-reload |
 | nginx config | `make nginx` | `/etc/nginx/{nginx.conf,conf.d/home.conf}` + reload |
 | System setup (interactive) | ssh; `./setup_mac.sh <section>` | various |

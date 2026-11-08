@@ -6,10 +6,9 @@ StartLimitBurst=10
 
 [Container]
 ContainerName=landing
-Image=docker.io/library/nginx:alpine
-AutoUpdate=registry
-Volume=%h/srv/landing:/usr/share/nginx/html:ro,Z
-PublishPort=8080:80
+Image=localhost/landing:latest
+Volume=%h/srv/groceries:/data:Z
+PublishPort=8080:8080
 Environment=TZ=America/New_York
 
 [Service]

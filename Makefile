@@ -1,7 +1,8 @@
 REMOTE := mac-media
 QUADLET_SERVICES := authelia jellyfin navidrome homeassistant postgres valkey
+GROCERIES_SRC ?= ../groceries
 
-.PHONY: all setup creds landing quadlets nginx nas-mounts revive diff $(QUADLET_SERVICES)
+.PHONY: all setup creds landing groceries-seed quadlets nginx nas-mounts revive diff $(QUADLET_SERVICES)
 
 all: landing quadlets nginx
 
@@ -12,7 +13,15 @@ creds:
 	scp -p server/certbot/cloudflare.ini $(REMOTE):server/certbot/cloudflare.ini
 
 landing:
-	rsync -av --delete server/landing/ $(REMOTE):srv/landing/
+	ssh $(REMOTE) 'mkdir -p build/landing'
+	rsync -av --delete --exclude-from=$(GROCERIES_SRC)/.containerignore $(GROCERIES_SRC)/ $(REMOTE):build/landing/
+	scp server/quadlet/landing.container $(REMOTE):.config/containers/systemd/
+	ssh $(REMOTE) 'podman build -t localhost/landing:latest -f build/landing/Containerfile build/landing && \
+	  systemctl --user daemon-reload && systemctl --user restart landing'
+
+groceries-seed:
+	ssh $(REMOTE) 'mkdir -p srv/groceries'
+	rsync -av --ignore-existing server/seed/groceries.md $(REMOTE):srv/groceries/
 
 quadlets:
 	rsync -av server/quadlet/ $(REMOTE):.config/containers/systemd/
@@ -51,7 +60,7 @@ revive:
 
 diff:
 	@echo "=== landing ==="
-	-rsync -avn --delete server/landing/ $(REMOTE):srv/landing/
+	-rsync -avn --delete --exclude-from=$(GROCERIES_SRC)/.containerignore $(GROCERIES_SRC)/ $(REMOTE):build/landing/
 	@echo "=== quadlets ==="
 	-rsync -avn server/quadlet/ $(REMOTE):.config/containers/systemd/
 	@echo "=== nginx ==="
