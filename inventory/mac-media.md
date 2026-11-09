@@ -19,7 +19,7 @@ The actual scripts live in [../server/](../server/).
 | Service       | How       | Listens on |
 |---------------|-----------|------------|
 | nginx (RPM)   | systemd   | 80, 443    |
-| landing (Roda app, localhost/landing) | quadlet, user-mode | 8080 (host) → 8080 (container) |
+| landing (Roda app, localhost/landing): service links, grocery list edit and PDF, data in `~/srv/groceries/` | quadlet, user-mode | 8080 (host) → 8080 (container) |
 | jellyfin      | quadlet, user-mode, `Network=host` | 8096 |
 | navidrome     | quadlet, user-mode, `Network=host` | 4533 |
 | homeassistant | quadlet, user-mode, `Network=host` | 8123 |
