@@ -10,7 +10,7 @@ see [storage.md](storage.md). For media hardware (TV, Roku, soundbar) see
 
 | Device           | Spec                              | Role                          |
 |------------------|-----------------------------------|-------------------------------|
-| mac-media        | 2012 Mac Mini, mechanical HD      | See [mac-media.md](mac-media.md) |
+| mac-media        | 2012 Mac Mini, 250GB SATA SSD     | See [mac-media.md](mac-media.md) |
 | Mac Studio       | (user's primary work machine)     | Dev / personal               |
 | iMac 2018 27"    | 16GB RAM, 1TB, AMD Radeon R9 M390 | Unplugged, candidate to linuxize |
 | Apple TV gen 2/3 | Silver remote, no app store, no HD | Recycle queue                |

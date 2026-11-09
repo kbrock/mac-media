@@ -10,7 +10,7 @@ The actual scripts live in [../server/](../server/).
 
 ## Hardware
 
-- 2012 Intel Mac Mini, Fedora 43, wired ethernet only, mechanical HD.
+- 2012 Intel Mac Mini, Fedora 43, wired ethernet only, 250GB SATA SSD.
 - Reserved IP: 192.168.1.246.
 - See [hardware.md](hardware.md) for the Servers table entry.
 
