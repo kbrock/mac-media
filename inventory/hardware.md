@@ -37,6 +37,14 @@ see [storage.md](storage.md). For media hardware (TV, Roku, soundbar) see
 | Emporia smart plugs x4    | -                 | Inventory   |
 | VocoLinc SmartBar plugs   | HomeKit native    | 2-4 of them, locations unknown |
 
+## Indoor Gardens
+
+| Device                | Notes                                                              |
+|-----------------------|--------------------------------------------------------------------|
+| Gardyn 3.0            | Raspberry Pi Zero W controller. `gardyn.home.thebrocks.net`, linked from the landing page. Code in `~/src/gardyn/garden-of-eden` |
+| Click & Grow 27       | -                                                                  |
+| Instafarm micro greens| -                                                                  |
+
 ## Plumbing / Mechanical
 
 - 1/2 HP 230V well pump
