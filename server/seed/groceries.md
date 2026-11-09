@@ -38,6 +38,8 @@
 -
 -
 -
+-
+-
 
 ---
 
@@ -50,7 +52,7 @@
 -
 -
 -
-## Nuts / Soap 2
+## Nuts/Soap 2
 - Collagen
 - Electrolytes
 - Macadamia
@@ -81,6 +83,8 @@
 -
 -
 -
+-
+-
 
 ---
 
@@ -94,7 +98,7 @@
 -
 -
 ## Chips 6
-- Tortilla Chips
+- Tortlla Chips
 - Beef Jerky
 - Bldr Chips
 -
@@ -113,14 +117,16 @@
 -
 -
 -
-## Paper Goods
-- Paper towels
+## Paper
+- Ppr Towels
 - Al Foil
 - Baggies
 - Detergent
 - Parchment
 - Tissues
 - TP
+-
+-
 -
 -
 -
@@ -161,6 +167,8 @@
 -
 ## Other
 - Dog Food
+-
+-
 -
 -
 -
