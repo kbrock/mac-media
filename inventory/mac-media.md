@@ -84,10 +84,12 @@ Quadlet does NOT process `.timer` files — only `.container` (and `.pod`,
 `.network`, `.volume`, etc.). Timers go in `/etc/systemd/system/` as
 regular systemd timers that trigger the quadlet-generated `.service`.
 
-## SSO (planned)
+## SSO
 
-Authelia at `auth.home.thebrocks.net`. OIDC clients for HA, Jellyfin,
-Navidrome, Immich. Family user accounts. See `TODO.md` §2.
+Authelia at `auth.home.thebrocks.net`, running as a quadlet. Family user
+accounts. Home Assistant and Navidrome sit behind nginx forward auth;
+Jellyfin signs in through OIDC. Immich is not deployed yet, so its login
+is still to do (`TODO.md` §3).
 
 ## Home automation (lives here for now)
 
