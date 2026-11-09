@@ -14,8 +14,9 @@ Personal home server. Runs media and smart-home services for the household.
 - [x] [Home Assistant](quadlet/homeassistant.container)
 - [x] [Jellyfin](quadlet/jellyfin.container)
 - [x] [Navidrome](quadlet/navidrome.container)
-- [x] [Landing page](quadlet/landing.container)
-- [ ] Authelia (SSO via OIDC, needs subdomains)
+- [x] [Landing page](server/quadlet/landing.container): service links, served by the Roda app built from `../groceries` (`make landing`)
+- [x] Groceries: the same Roda app. Edit the list at `/groceries/edit`, view at `/groceries`, print `/groceries.pdf`. Data in `~/srv/groceries/`
+- [x] Authelia (SSO via OIDC, needs subdomains)
 
 ## Rebuild from scratch
 
@@ -23,7 +24,7 @@ From a fresh Fedora install on the server, in a clone of this repo:
 
 ```bash
 ./setup_mac.sh   # interactive: cockpit, podman linger, firewall, NAS mounts (see mac-media-setup.md)
-mkdir -p ~/srv/{landing,jellyfin/{config,cache},homeassistant/config,navidrome/data}
+mkdir -p ~/srv/{groceries,jellyfin/{config,cache},homeassistant/config,navidrome/data}
 cp quadlet/*.container ~/.config/containers/systemd/
 systemctl --user daemon-reload && systemctl --user enable --now homeassistant jellyfin landing navidrome
 ```
