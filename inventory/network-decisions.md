@@ -49,6 +49,11 @@ existing UniFi client entry (only one network's Fixed-IP/Override was
 selectable). Fixed by hardcoding a mock MAC (`cloned-mac-address`) on
 the sub-interface so UniFi treats it as a separate client.
 
+## mDNS only broadcasts on the primary NIC
+
+mDNS only broadcasts on the primary interface (`enp1s0f0`), not the
+DumbHome VLAN sub-interface (`enp1s0f0.2`).
+
 ## MQTT not used yet, but likely needed soon
 
 Devices like Shelly/Tasmota/Zigbee2MQTT are MQTT-based — no
