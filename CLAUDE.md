@@ -61,6 +61,11 @@ topic file below.
 - Running services → [README.md](README.md)
 - Backlog (not committed) → [inventory/server-projects.md](inventory/server-projects.md)
 
+**Runbook vs one-off.** A step belongs in the runbook (`server/mac-media-setup.md`)
+if it recurs, e.g. adding a phone or Roku means enabling Quick Connect again. A
+one-time cleanup that is finished once done (e.g. `tools/rename_fixes.rb`) is not
+committed.
+
 **Scripts are instructions too.** `server/*.sh` (e.g. `authelia-init.sh`,
 `setup_mac.sh`) and `server/quadlet/*.container` encode setup/deploy
 procedure just as much as any `.md` file — often more precisely, since
