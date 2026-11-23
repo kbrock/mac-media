@@ -94,3 +94,7 @@ Install via Jellyfin UI (one-time, survives container restarts via plugin data v
 4. Find **SSO-Auth**, install, restart Jellyfin again.
 
 Plugin v4.x targets Jellyfin 10.11+. If the catalog shows nothing after restart, hard-refresh — the catalog caches aggressively.
+
+## Jellyfin — Quick Connect for native apps
+
+Dashboard → General → enable **Quick Connect** → Save.
