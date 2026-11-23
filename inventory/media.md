@@ -24,6 +24,10 @@ streaming goes via Roku.
 - **Luna** (sideloaded) — Amazon cloud gaming
 - Other streaming apps (Netflix, etc.) — installed normally
 
+## Jellyfin clients confirmed working
+
+Roku, browser, iPhone app — all streaming from `movies.home.thebrocks.net`.
+
 ## Services on mac-media
 
 | Service   | Subdomain (planned)              | Port | Source             |
