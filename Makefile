@@ -21,7 +21,7 @@ landing:
 
 groceries-seed:
 	ssh $(REMOTE) 'mkdir -p srv/groceries'
-	rsync -av --ignore-existing server/seed/groceries.md $(REMOTE):srv/groceries/
+	rsync -av --ignore-existing server/seed/ $(REMOTE):srv/groceries/
 
 quadlets:
 	rsync -av server/quadlet/ $(REMOTE):.config/containers/systemd/
